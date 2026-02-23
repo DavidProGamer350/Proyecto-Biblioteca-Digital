@@ -1,4 +1,20 @@
 # PROYECTO-BIBLIOTECA-DIGITAL
+Estudiantes:
+
+•	Jhorger David Andrade Calderon
+
+•	Cesar David Ojeda Gonzalez
+
+Docente:
+
+•	Eliecer Montero Ojeda
+
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="50"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" width="50"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" width="50"/>
+</p>
+
 # Descripción del Proyecto
  
 El Sistema de Biblioteca Digital es una plataforma escalable orientada al dominio educativo/académico que permitirá la gestión integral de libros digitales, préstamos, reservas y recomendaciones personalizadas.
