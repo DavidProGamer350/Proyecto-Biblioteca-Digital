@@ -5,6 +5,7 @@ import com.biblioteca.digital.domain.port.out.UserRepositoryPort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -57,26 +58,34 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
 	}
 
 	@Override
-	public User findById(Long id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public User findById(Long id) {
+        return repository.findById(id)
+            .map(this::mapToDomain)
+            .orElse(null);
+    }
 
-	@Override
-	public User findByEmail(String email) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public User findByEmail(String email) {
+        return repository.findByEmail(email)
+            .map(this::mapToDomain)
+            .orElse(null);
+    }
 
-	@Override
-	public User update(Long id, User user) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public User update(Long id, User user) {
+		Optional<UserEntity> optionalEntity = repository.findById(id);
+        if (optionalEntity.isEmpty()) return null;
+        
+        UserEntity entity = optionalEntity.get();
+        mapToEntity(user, entity); // Actualiza campos
+        entity.setId(id); // Mantiene ID
+        
+        UserEntity updated = repository.save(entity);
+        return mapToDomain(updated);
+    }
 
-	@Override
-	public void deleteById(Long id) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void deleteById(Long id) {
+        repository.deleteById(id);
+    }
 }
