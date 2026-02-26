@@ -11,4 +11,9 @@ public interface UserUseCase {
 	User getUserById(Long id); // ← NUEVO
 
 	User getUserByEmail(String email); // ← NUEVO
+
+	User updateUser(Long id, User user);
+
+	void deleteUser(Long id);
+
 }

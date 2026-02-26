@@ -20,7 +20,7 @@ public class UserEntity {
 	@Column(name = "password_hash", length = 255)
 	private String passwordHash;
 
-	@Column(nullable = false, length = 20)
+	@Column(name = "rol", nullable = false, length = 20)
 	private String rol; // "USER", "ADMIN"
 
 	@Column(name = "suscripcion_activa")

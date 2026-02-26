@@ -66,7 +66,7 @@ public class User {
 	}
 
 	public void setRol(String rol) {
-		rol = rol;
+		this.rol = rol;
 	}
 
 	public boolean isSuscripcionActiva() {

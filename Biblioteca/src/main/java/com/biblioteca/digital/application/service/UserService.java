@@ -35,4 +35,14 @@ public class UserService implements UserUseCase {
     public User getUserByEmail(String email) {
         return userRepositoryPort.findByEmail(email);
     }
+    
+    @Override
+    public User updateUser(Long id, User user) {
+        return userRepositoryPort.update(id, user);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        userRepositoryPort.deleteById(id);
+    }
 }

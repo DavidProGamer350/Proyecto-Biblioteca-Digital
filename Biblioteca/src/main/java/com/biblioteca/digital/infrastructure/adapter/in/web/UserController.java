@@ -12,36 +12,44 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserUseCase userUseCase;
+	private final UserUseCase userUseCase;
 
-    public UserController(UserUseCase userUseCase) {
-        this.userUseCase = userUseCase;
-    }
+	public UserController(UserUseCase userUseCase) {
+		this.userUseCase = userUseCase;
+	}
 
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User created = userUseCase.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
+	@PostMapping
+	public ResponseEntity<User> createUser(@RequestBody User user) {
+		User created = userUseCase.createUser(user);
+		return ResponseEntity.status(HttpStatus.CREATED).body(created);
+	}
 
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userUseCase.getAllUsers());
-    }
+	@GetMapping
+	public ResponseEntity<List<User>> getAllUsers() {
+		return ResponseEntity.ok(userUseCase.getAllUsers());
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userUseCase.getUserById(id);
-        return user != null ? 
-            ResponseEntity.ok(user) : 
-            ResponseEntity.notFound().build();
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<User> getUserById(@PathVariable Long id) {
+		User user = userUseCase.getUserById(id);
+		return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+	}
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-        User user = userUseCase.getUserByEmail(email);
-        return user != null ? 
-            ResponseEntity.ok(user) : 
-            ResponseEntity.notFound().build();
-    }
+	@GetMapping("/email/{email}")
+	public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+		User user = userUseCase.getUserByEmail(email);
+		return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+	}
+
+	@PutMapping("/{id}")
+	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+		User updated = userUseCase.updateUser(id, user);
+		return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+		userUseCase.deleteUser(id);
+		return ResponseEntity.noContent().build();
+	}
 }
