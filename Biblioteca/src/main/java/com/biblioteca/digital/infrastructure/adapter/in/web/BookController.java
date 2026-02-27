@@ -3,8 +3,8 @@ package com.biblioteca.digital.infrastructure.adapter.in.web;
 import com.biblioteca.digital.domain.model.Book;
 import com.biblioteca.digital.domain.model.BookFormato;
 import com.biblioteca.digital.domain.port.in.BookUseCase;
+import com.biblioteca.digital.domain.service.factory.FileUploaderCreator;
 import com.biblioteca.digital.domain.service.factory.FileUploaderFactory;
-import com.biblioteca.digital.domain.service.factory.creators.FileUploaderCreator;
 
 import tools.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;

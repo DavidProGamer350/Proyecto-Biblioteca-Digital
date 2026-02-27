@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.biblioteca.digital.domain.model.BookFormato;
 import com.biblioteca.digital.domain.service.factory.creators.EpubUploaderCreator;
-import com.biblioteca.digital.domain.service.factory.creators.FileUploaderCreator;
+import com.biblioteca.digital.domain.service.factory.creators.MobiUploaderCreator;
 import com.biblioteca.digital.domain.service.factory.creators.PdfUploaderCreator;
 
 import org.springframework.stereotype.Component; 
