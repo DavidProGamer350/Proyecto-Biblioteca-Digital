@@ -1,4 +1,4 @@
-package com.biblioteca.digital.domain.service.factory.creators;
+package com.biblioteca.digital.domain.service.factory;
 
 import com.biblioteca.digital.domain.service.FileUploader;
 
