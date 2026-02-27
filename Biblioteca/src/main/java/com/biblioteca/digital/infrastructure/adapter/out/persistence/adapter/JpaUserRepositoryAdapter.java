@@ -1,7 +1,10 @@
-package com.biblioteca.digital.infrastructure.adapter.out.persistence;
+package com.biblioteca.digital.infrastructure.adapter.out.persistence.adapter;
 
 import com.biblioteca.digital.domain.model.User;
 import com.biblioteca.digital.domain.port.out.UserRepositoryPort;
+import com.biblioteca.digital.infrastructure.adapter.out.persistence.entity.UserEntity;
+import com.biblioteca.digital.infrastructure.adapter.out.persistence.repository.SpringDataUserRepository;
+
 import org.springframework.stereotype.Component;
 
 import java.util.List;

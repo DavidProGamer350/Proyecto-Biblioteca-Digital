@@ -1,8 +1,11 @@
-package com.biblioteca.digital.infrastructure.adapter.out.persistence;
+package com.biblioteca.digital.infrastructure.adapter.out.persistence.adapter;
 
 import com.biblioteca.digital.domain.model.Book;
 import com.biblioteca.digital.domain.model.BookFormato;
 import com.biblioteca.digital.domain.port.out.BookRepositoryPort;
+import com.biblioteca.digital.infrastructure.adapter.out.persistence.entity.BookEntity;
+import com.biblioteca.digital.infrastructure.adapter.out.persistence.repository.SpringDataBookRepository;
+
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.biblioteca.digital.infrastructure.adapter.out.persistence;
+package com.biblioteca.digital.infrastructure.adapter.out.persistence.entity;
 
 import jakarta.persistence.*;
 

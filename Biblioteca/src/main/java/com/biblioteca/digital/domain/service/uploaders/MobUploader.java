@@ -1,6 +1,8 @@
-package com.biblioteca.digital.domain.service;
+package com.biblioteca.digital.domain.service.uploaders;
 
 import java.nio.charset.StandardCharsets; // ⭐ IMPORT
+
+import com.biblioteca.digital.domain.service.FileUploader;
 
 public class MobUploader implements FileUploader {
 	@Override

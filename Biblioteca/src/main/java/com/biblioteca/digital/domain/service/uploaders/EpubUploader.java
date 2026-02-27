@@ -1,4 +1,6 @@
-package com.biblioteca.digital.domain.service;
+package com.biblioteca.digital.domain.service.uploaders;
+
+import com.biblioteca.digital.domain.service.FileUploader;
 
 public class EpubUploader implements FileUploader {
 	private static final String EPUB_MAGIC = "application/epub+zip";

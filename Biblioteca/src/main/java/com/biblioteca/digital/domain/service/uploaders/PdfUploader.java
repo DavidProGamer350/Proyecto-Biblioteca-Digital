@@ -1,4 +1,6 @@
-package com.biblioteca.digital.domain.service;
+package com.biblioteca.digital.domain.service.uploaders;
+
+import com.biblioteca.digital.domain.service.FileUploader;
 
 public class PdfUploader implements FileUploader {
 	@Override
