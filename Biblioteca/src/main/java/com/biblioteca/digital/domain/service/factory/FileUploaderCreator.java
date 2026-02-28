@@ -1,5 +1,6 @@
 package com.biblioteca.digital.domain.service.factory;
 
+import com.biblioteca.digital.domain.model.BookFormato;
 import com.biblioteca.digital.domain.service.FileUploader;
 
 public abstract class FileUploaderCreator {
@@ -13,4 +14,7 @@ public abstract class FileUploaderCreator {
 	}
 
 	protected abstract FileUploader createUploader(); // Factory Method
+
+	public abstract BookFormato getFormato();
+	
 }
