@@ -2,31 +2,26 @@ package com.biblioteca.digital.domain.service.factory;
 
 import java.util.EnumMap;
 import java.util.Map;
-
+import java.util.List;
 import com.biblioteca.digital.domain.model.BookFormato;
-import com.biblioteca.digital.domain.service.factory.creators.EpubUploaderCreator;
-import com.biblioteca.digital.domain.service.factory.creators.MobiUploaderCreator;
-import com.biblioteca.digital.domain.service.factory.creators.PdfUploaderCreator;
 
-import org.springframework.stereotype.Component; 
-
-@Component
 public class FileUploaderFactory {
 
-    private final Map<BookFormato, FileUploaderCreator> creators = new EnumMap<>(BookFormato.class);
+	private final Map<BookFormato, FileUploaderCreator> creators;
 
-    public FileUploaderFactory() {
-        creators.put(BookFormato.PDF,  new PdfUploaderCreator());
-        creators.put(BookFormato.EPUB, new EpubUploaderCreator());
-        creators.put(BookFormato.MOBI, new MobiUploaderCreator());
-    }
+	public FileUploaderFactory(List<FileUploaderCreator> creatorList) {
 
-    public FileUploaderCreator getCreator(BookFormato formato) {
-        FileUploaderCreator creator = creators.get(formato);
-        if (creator == null) {
-            throw new IllegalArgumentException("Formato no soportado: " + formato);
-        }
-        return creator;
-    }
+		this.creators = new EnumMap<>(BookFormato.class);
+		for (FileUploaderCreator creator : creatorList) {
+			creators.put(creator.getFormato(), creator);
+		}
+	}
+
+	public FileUploaderCreator getCreator(BookFormato formato) {
+		FileUploaderCreator creator = creators.get(formato);
+		if (creator == null) {
+			throw new IllegalArgumentException("Formato no soportado: " + formato);
+		}
+		return creator;
+	}
 }
-

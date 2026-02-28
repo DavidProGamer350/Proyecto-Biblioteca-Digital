@@ -6,6 +6,7 @@ import com.biblioteca.digital.domain.port.in.BookUseCase;
 import com.biblioteca.digital.domain.service.factory.FileUploaderCreator;
 import com.biblioteca.digital.domain.service.factory.FileUploaderFactory;
 
+import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/books")
 public class BookController {
 
@@ -36,22 +38,22 @@ public class BookController {
 			ObjectMapper mapper = new ObjectMapper();
 			Book book = mapper.readValue(bookJson, Book.class);
 
-			// ⭐ VALIDACIÓN FORMATO (mantiene seguridad)
-			if (!book.getFormato().equals(detectFileType(file.getBytes()))) {
-				throw new IllegalArgumentException(
-						"❌ Formato JSON (" + book.getFormato() + ") no coincide con archivo detectado");
+			byte[] fileBytes = file.getBytes();
+
+			if (!book.getFormato().equals(detectFileType(fileBytes))) {
+				throw new IllegalArgumentException("Formato JSON no coincide con archivo detectado");
 			}
 
-			// ⭐ FACTORY METHOD: Creator maneja creación + Template Method upload
 			FileUploaderCreator creator = fileUploaderFactory.getCreator(book.getFormato());
-			String path = creator.upload(book.getIsbn(), file.getBytes()); // Template Method
+
+			String path = creator.upload(book.getIsbn(), fileBytes);
 
 			book.setArchivoPath(path);
 			Book created = bookUseCase.createBook(book);
+
 			return ResponseEntity.status(HttpStatus.CREATED).body(created);
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			return ResponseEntity.badRequest().body(null);
 		}
 	}
