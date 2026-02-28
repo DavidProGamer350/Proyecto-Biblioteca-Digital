@@ -2,10 +2,10 @@ package com.biblioteca.digital.infrastructure.adapter.in.web;
 
 import com.biblioteca.digital.domain.model.User;
 import com.biblioteca.digital.domain.port.in.UserUseCase;
+import com.biblioteca.digital.domain.subscription.SubscriptionManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -52,4 +52,19 @@ public class UserController {
 		userUseCase.deleteUser(id);
 		return ResponseEntity.noContent().build();
 	}
+
+	@GetMapping("/{id}/premium")
+	public ResponseEntity<Boolean> isUserPremium(@PathVariable Long id) {
+
+		User user = userUseCase.getUserById(id);
+
+		if (user == null) {
+			return ResponseEntity.notFound().build();
+		}
+
+		boolean premium = SubscriptionManager.INSTANCE.isPremium(user);
+
+		return ResponseEntity.ok(premium);
+	}
+
 }
