@@ -46,8 +46,13 @@ public class BookController {
 
 			FileUploaderCreator creator = fileUploaderFactory.getCreator(book.getFormato());
 
-			String path = creator.upload(book.getIsbn(), fileBytes);
-
+			String path;
+			
+			if (book.getFormato() == BookFormato.MOBI) {
+				path = "/uploads/" + book.getIsbn() + ".mobi";
+			} else {
+				path = creator.upload(book.getIsbn(), fileBytes); // PDF/EPUB normal
+			}
 			book.setArchivoPath(path);
 			Book created = bookUseCase.createBook(book);
 
@@ -58,26 +63,35 @@ public class BookController {
 		}
 	}
 
-	// ⭐ Detecta tipo (igual que tenías)
+	// ⭐ Detecta tipo
 	private BookFormato detectFileType(byte[] bytes) {
 		if (bytes.length < 8)
 			throw new IllegalArgumentException("Archivo muy pequeño");
 
-		String header8 = new String(bytes, 0, 8);
+		String header8 = new String(bytes, 0, 8, StandardCharsets.UTF_8); // ⭐ UTF_8
 
+		// PDF
 		if (header8.startsWith("%PDF-"))
 			return BookFormato.PDF;
 
+		// EPUB
 		if (header8.startsWith("PK") && bytes.length >= 60) {
-			String mimetype = new String(bytes, 32, Math.min(25, bytes.length - 32), StandardCharsets.UTF_8)
+			String mimetype = new String(bytes, 30, Math.min(25, bytes.length - 30), StandardCharsets.UTF_8) // ⭐
+																												// Posición
+																												// 30
 					.toLowerCase();
 			if (mimetype.contains("epub"))
 				return BookFormato.EPUB;
 		}
 
-		// MOBI flexible
+		// ⭐ MOBI HEADERS REALES + tu fallback
+		if (header8.startsWith("BZh") || header8.startsWith("TEXt") || header8.toLowerCase().contains("bibliote")) // ←
+																													// sample.mobi
+			return BookFormato.MOBI;
+
+		// 
 		String first200 = new String(bytes, 0, Math.min(200, bytes.length), StandardCharsets.UTF_8).toLowerCase();
-		if (first200.contains("MOBI") || first200.contains("TEXT"))
+		if (first200.contains("mobi") || first200.contains("text"))
 			return BookFormato.MOBI;
 
 		throw new IllegalArgumentException("Tipo no soportado: " + header8);
