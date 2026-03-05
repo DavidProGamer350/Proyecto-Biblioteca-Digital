@@ -1,4 +1,4 @@
-package com.biblioteca.digital.domain.service.uploaders;
+package com.biblioteca.digital.domain.service.upload.uploaders;
 
 import java.nio.charset.StandardCharsets; // ⭐ IMPORT
 

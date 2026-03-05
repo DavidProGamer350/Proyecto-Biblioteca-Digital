@@ -1,4 +1,4 @@
-package com.biblioteca.digital.domain.service.factory;
+package com.biblioteca.digital.domain.service.upload.factory;
 
 import com.biblioteca.digital.domain.model.BookFormato;
 import com.biblioteca.digital.domain.service.FileUploader;

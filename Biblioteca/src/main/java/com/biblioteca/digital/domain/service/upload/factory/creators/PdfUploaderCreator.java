@@ -1,11 +1,11 @@
-package com.biblioteca.digital.domain.service.factory.creators;
+package com.biblioteca.digital.domain.service.upload.factory.creators;
 
 import org.springframework.stereotype.Component;
 
 import com.biblioteca.digital.domain.model.BookFormato;
 import com.biblioteca.digital.domain.service.FileUploader;
-import com.biblioteca.digital.domain.service.factory.FileUploaderCreator;
-import com.biblioteca.digital.domain.service.uploaders.PdfUploader;
+import com.biblioteca.digital.domain.service.upload.factory.FileUploaderCreator;
+import com.biblioteca.digital.domain.service.upload.uploaders.PdfUploader;
 
 @Component
 public class PdfUploaderCreator extends FileUploaderCreator {

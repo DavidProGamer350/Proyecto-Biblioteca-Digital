@@ -1,11 +1,15 @@
-package com.biblioteca.digital.domain.service.factory;
+package com.biblioteca.digital.domain.service.upload.factory;
 
 import java.util.EnumMap;
 import java.util.Map;
+
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 import com.biblioteca.digital.domain.model.BookFormato;
 
-public class FileUploaderFactory {
+@Component
+public class FileUploaderFactory implements UploadAbstractFactory {
 
 	private final Map<BookFormato, FileUploaderCreator> creators;
 
