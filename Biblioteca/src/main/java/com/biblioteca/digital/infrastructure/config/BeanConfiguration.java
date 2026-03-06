@@ -6,8 +6,8 @@ import com.biblioteca.digital.domain.port.in.BookUseCase;
 import com.biblioteca.digital.domain.port.in.UserUseCase;
 import com.biblioteca.digital.domain.port.out.BookRepositoryPort;
 import com.biblioteca.digital.domain.port.out.UserRepositoryPort;
-import com.biblioteca.digital.domain.service.factory.FileUploaderFactory;
-import com.biblioteca.digital.domain.service.factory.FileUploaderCreator;
+import com.biblioteca.digital.domain.service.upload.factory.FileUploaderCreator;
+import com.biblioteca.digital.domain.service.upload.factory.FileUploaderFactory;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

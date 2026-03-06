@@ -3,8 +3,9 @@ package com.biblioteca.digital.infrastructure.adapter.in.web;
 import com.biblioteca.digital.domain.model.Book;
 import com.biblioteca.digital.domain.model.BookFormato;
 import com.biblioteca.digital.domain.port.in.BookUseCase;
-import com.biblioteca.digital.domain.service.factory.FileUploaderCreator;
-import com.biblioteca.digital.domain.service.factory.FileUploaderFactory;
+import com.biblioteca.digital.domain.service.upload.factory.FileUploaderCreator;
+import com.biblioteca.digital.domain.service.upload.factory.FileUploaderFactory;
+import com.biblioteca.digital.domain.service.upload.factory.UploadAbstractFactory;
 
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.ObjectMapper;
@@ -23,45 +24,47 @@ import java.util.List;
 public class BookController {
 
 	private final BookUseCase bookUseCase;
-	private final FileUploaderFactory fileUploaderFactory; // ⭐ Factory inyectada
+	private final UploadAbstractFactory uploadFactory;
 
-	public BookController(BookUseCase bookUseCase, FileUploaderFactory fileUploaderFactory) {
+	public BookController(BookUseCase bookUseCase, UploadAbstractFactory uploadFactory) {
 		this.bookUseCase = bookUseCase;
-		this.fileUploaderFactory = fileUploaderFactory; // ⭐ DIP
+		this.uploadFactory = uploadFactory; // ⭐ DIP
 	}
 
-	@PostMapping(value = "/upload")
-	public ResponseEntity<Book> createBook(@RequestPart("book") String bookJson,
-			@RequestPart("file") MultipartFile file) {
+    @PostMapping(value = "/upload")
+    public ResponseEntity<Book> createBook(@RequestPart("book") String bookJson,
+            @RequestPart("file") MultipartFile file) {
 
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			Book book = mapper.readValue(bookJson, Book.class);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Book book = mapper.readValue(bookJson, Book.class);
 
-			byte[] fileBytes = file.getBytes();
+            byte[] fileBytes = file.getBytes();
 
-			if (!book.getFormato().equals(detectFileType(fileBytes))) {
-				throw new IllegalArgumentException("Formato JSON no coincide con archivo detectado");
-			}
+            if (!book.getFormato().equals(detectFileType(fileBytes))) {
+                throw new IllegalArgumentException("Formato JSON no coincide con archivo detectado");
+            }
 
-			FileUploaderCreator creator = fileUploaderFactory.getCreator(book.getFormato());
+            FileUploaderCreator creator = uploadFactory.getCreator(book.getFormato());  // ⭐ CAMBIADO
 
-			String path;
-			
-			if (book.getFormato() == BookFormato.MOBI) {
-				path = "/uploads/" + book.getIsbn() + ".mobi";
-			} else {
-				path = creator.upload(book.getIsbn(), fileBytes); // PDF/EPUB normal
-			}
-			book.setArchivoPath(path);
-			Book created = bookUseCase.createBook(book);
+            String path;
+            if (book.getFormato() == BookFormato.MOBI) {
+                path = "/uploads/" + book.getIsbn() + ".mobi";
+            } else {
+                path = creator.upload(book.getIsbn(), fileBytes); // PDF/EPUB normal
+            }
+            
+            book.setArchivoPath(path);
+            Book created = bookUseCase.createBook(book);
 
-			return ResponseEntity.status(HttpStatus.CREATED).body(created);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
 
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(null);
-		}
-	}
+        } catch (Exception e) {
+            System.out.println("💥 ERROR: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 
 	// ⭐ Detecta tipo
 	private BookFormato detectFileType(byte[] bytes) {

@@ -1,4 +1,4 @@
-package com.biblioteca.digital.domain.service.uploaders;
+package com.biblioteca.digital.domain.service.upload.uploaders;
 
 import com.biblioteca.digital.domain.service.FileUploader;
 
