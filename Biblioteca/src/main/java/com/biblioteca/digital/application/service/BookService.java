@@ -4,6 +4,7 @@ import com.biblioteca.digital.domain.model.Book;
 import com.biblioteca.digital.domain.port.in.BookUseCase;
 import com.biblioteca.digital.domain.port.out.BookRepositoryPort;
 import java.util.List;
+import java.util.Optional;
 
 public class BookService implements BookUseCase {
 
@@ -32,8 +33,22 @@ public class BookService implements BookUseCase {
     
     @Override
     public Book updateBook(Long id, Book book) {
-        return bookRepositoryPort.update(id, book);
+    	Book existing = bookRepositoryPort.findById(id);
+        
+        // ⭐ SI HAY NUEVO ARCHIVO → actualizar path
+        if (book.getArchivoPath() != null && !book.getArchivoPath().isEmpty()) {
+            existing.setArchivoPath(book.getArchivoPath());
+        }
+        
+        // Actualizar otros datos
+        existing.setTitulo(book.getTitulo());
+        existing.setAutor(book.getAutor());
+        existing.setIsbn(book.getIsbn());
+        existing.setFormato(book.getFormato());
+        
+        return bookRepositoryPort.save(existing);
     }
+
 
     @Override
     public void deleteBook(Long id) {
