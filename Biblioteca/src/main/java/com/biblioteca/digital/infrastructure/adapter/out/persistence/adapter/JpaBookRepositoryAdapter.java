@@ -79,6 +79,12 @@ public class JpaBookRepositoryAdapter implements BookRepositoryPort {
             entity.getArchivoPath()
         );
     }
+
+    @Override
+    public Book findById(Long id) {
+        return repository.findById(id).map(this::mapToDomain)
+                .orElse(null);
+    }
 }
 
 
