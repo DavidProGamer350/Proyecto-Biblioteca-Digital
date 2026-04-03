@@ -1,5 +1,6 @@
 package com.biblioteca.digital.infrastructure.adapter.in.web;
 
+import com.biblioteca.digital.application.service.SubscriptionService;
 import com.biblioteca.digital.domain.model.User;
 import com.biblioteca.digital.domain.port.in.UserUseCase;
 import com.biblioteca.digital.domain.subscription.SubscriptionManager;
@@ -13,9 +14,11 @@ import java.util.List;
 public class UserController {
 
 	private final UserUseCase userUseCase;
+	private final SubscriptionService subscriptionService;
 
-	public UserController(UserUseCase userUseCase) {
+	public UserController(UserUseCase userUseCase, SubscriptionService subscriptionService) {
 		this.userUseCase = userUseCase;
+		this.subscriptionService = subscriptionService;
 	}
 
 	@PostMapping
@@ -56,15 +59,15 @@ public class UserController {
 	@GetMapping("/{id}/premium")
 	public ResponseEntity<Boolean> isUserPremium(@PathVariable Long id) {
 
-		User user = userUseCase.getUserById(id);
+	    User user = userUseCase.getUserById(id);
 
-		if (user == null) {
-			return ResponseEntity.notFound().build();
-		}
+	    if (user == null) {
+	        return ResponseEntity.notFound().build();
+	    }
 
-		boolean premium = SubscriptionManager.INSTANCE.isPremium(user);
+	    boolean premium = subscriptionService.verificarSuscripcionPremium(user);
 
-		return ResponseEntity.ok(premium);
+	    return ResponseEntity.ok(premium);
 	}
 
 }
