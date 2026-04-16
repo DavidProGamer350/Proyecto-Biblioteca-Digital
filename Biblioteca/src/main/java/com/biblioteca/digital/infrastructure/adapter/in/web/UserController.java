@@ -20,6 +20,11 @@ public class UserController {
 		this.userUseCase = userUseCase;
 		this.subscriptionService = subscriptionService;
 	}
+	
+	@GetMapping("/test")
+	public String test() {
+		return "Users endpoint working";
+	}
 
 	@PostMapping
 	public ResponseEntity<User> createUser(@RequestBody User user) {
@@ -32,42 +37,56 @@ public class UserController {
 		return ResponseEntity.ok(userUseCase.getAllUsers());
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<User> getUserById(@PathVariable Long id) {
-		User user = userUseCase.getUserById(id);
-		return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
-	}
-
 	@GetMapping("/email/{email}")
 	public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
 		User user = userUseCase.getUserByEmail(email);
 		return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-		User updated = userUseCase.updateUser(id, user);
-		return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+	@GetMapping("/{id}")
+	public ResponseEntity<User> getUserById(@PathVariable Long id) {
+		User user = userUseCase.getUserById(id);
+		return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
 	}
 
-	@DeleteMapping("/{id}")
+	@PutMapping("/{id}")
+	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+		System.out.println("PUT called with id: " + id + ", user: " + user);
+		User existing = userUseCase.getUserById(id);
+		System.out.println("Existing user: " + existing);
+		if (existing == null) {
+			return ResponseEntity.notFound().build();
+		}
+		User updated = userUseCase.updateUser(id, user);
+		System.out.println("Updated user: " + updated);
+		return ResponseEntity.ok(updated);
+	}
+
+@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 		userUseCase.deleteUser(id);
 		return ResponseEntity.noContent().build();
 	}
 
 	@GetMapping("/{id}/premium")
-	public ResponseEntity<Boolean> isUserPremium(@PathVariable Long id) {
-
+    public ResponseEntity<Boolean> isUserPremium(@PathVariable Long id) {
 	    User user = userUseCase.getUserById(id);
-
 	    if (user == null) {
 	        return ResponseEntity.notFound().build();
 	    }
-
 	    boolean premium = subscriptionService.verificarSuscripcionPremium(user);
-
 	    return ResponseEntity.ok(premium);
 	}
+
+    @PutMapping("/{id}/premium")
+    public ResponseEntity<User> togglePremium(@PathVariable Long id) {
+        User user = userUseCase.getUserById(id);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        user.setSuscripcionActiva(!user.isSuscripcionActiva());
+        User updated = userUseCase.updateUser(id, user);
+        return ResponseEntity.ok(updated);
+    }
 
 }

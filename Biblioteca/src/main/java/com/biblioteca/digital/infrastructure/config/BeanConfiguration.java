@@ -17,15 +17,16 @@ import com.biblioteca.digital.domain.service.upload.factory.FileUploaderFactory;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;  // ✅ IMPORT CORRECTO
+import java.util.List;
 
 @Configuration
 public class BeanConfiguration {
 
     @Bean
-    public UserUseCase userUseCase(UserRepositoryPort userRepositoryPort) {
-        return new UserService(userRepositoryPort);
+    public UserUseCase userUseCase(UserRepositoryPort userRepositoryPort, PasswordEncoder passwordEncoder) {
+        return new UserService(userRepositoryPort, passwordEncoder);
     }
 
     @Bean

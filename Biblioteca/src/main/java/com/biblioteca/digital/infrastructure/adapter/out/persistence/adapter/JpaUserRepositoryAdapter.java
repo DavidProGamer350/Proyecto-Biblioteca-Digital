@@ -80,8 +80,28 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
         if (optionalEntity.isEmpty()) return null;
         
         UserEntity entity = optionalEntity.get();
-        mapToEntity(user, entity); // Actualiza campos
-        entity.setId(id); // Mantiene ID
+        
+        // Actualizar campos individually solo si no son null
+        if (user.getName() != null) {
+            entity.setName(user.getName());
+        }
+        if (user.getEmail() != null) {
+            entity.setEmail(user.getEmail());
+        }
+        if (user.getPasswordHash() != null && !user.getPasswordHash().isEmpty()) {
+            entity.setPasswordHash(user.getPasswordHash());
+        }
+        if (user.getRol() != null) {
+            entity.setRol(user.getRol());
+        }
+        if (user.getFechaSuscripcion() != null) {
+            entity.setFechaSuscripcion(user.getFechaSuscripcion());
+        }
+        if (user.getFechaExpiracionSuscripcion() != null) {
+            entity.setFechaExpiracionSuscripcion(user.getFechaExpiracionSuscripcion());
+        }
+        // Actualizar suscripcionActiva si viene en el request
+        entity.setSuscripcionActiva(user.isSuscripcionActiva());
         
         UserEntity updated = repository.save(entity);
         return mapToDomain(updated);
