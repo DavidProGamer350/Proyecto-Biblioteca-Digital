@@ -18,6 +18,7 @@ public class Prestamo {
 	private String notificacionEmail;
 	private Boolean requiereAprobacion;
     private String motivoRechazo;
+    private Integer vecesRenovado;
 
 	// Constructor privado (solo Builder)
 	private Prestamo(Builder builder) {
@@ -34,6 +35,7 @@ public class Prestamo {
 		this.notificacionEmail = builder.notificacionEmail;
 		this.requiereAprobacion = builder.requiereAprobacion;
 		this.motivoRechazo = builder.motivoRechazo;
+		this.vecesRenovado = builder.vecesRenovado;
 	}
 
 	public Long getId() {
@@ -90,6 +92,10 @@ public class Prestamo {
 		return motivoRechazo;
 	}
 
+	public Integer getVecesRenovado() {
+		return vecesRenovado;
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}
@@ -109,6 +115,7 @@ public class Prestamo {
 		private String notificacionEmail;
 		private Boolean requiereAprobacion;
 		private String motivoRechazo;
+		private Integer vecesRenovado;
 
 		public Builder id(Long id) {
 			this.id = id;
@@ -173,6 +180,11 @@ public class Prestamo {
 
 		public Builder motivoRechazo(String motivoRechazo) {
 			this.motivoRechazo = motivoRechazo;
+			return this;
+		}
+
+		public Builder vecesRenovado(Integer vecesRenovado) {
+			this.vecesRenovado = vecesRenovado;
 			return this;
 		}
 

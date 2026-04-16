@@ -7,7 +7,6 @@ import com.biblioteca.digital.domain.service.upload.factory.FileUploaderCreator;
 import com.biblioteca.digital.domain.service.upload.factory.FileUploaderFactory;
 import com.biblioteca.digital.domain.service.upload.factory.UploadAbstractFactory;
 
-import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/books")
 public class BookController {
 
