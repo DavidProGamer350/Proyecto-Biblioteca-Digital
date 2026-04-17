@@ -4,17 +4,22 @@ import com.biblioteca.digital.domain.model.Book;
 import com.biblioteca.digital.domain.model.BookFormato;
 import com.biblioteca.digital.domain.port.in.BookUseCase;
 import com.biblioteca.digital.domain.service.upload.factory.FileUploaderCreator;
-import com.biblioteca.digital.domain.service.upload.factory.FileUploaderFactory;
 import com.biblioteca.digital.domain.service.upload.factory.UploadAbstractFactory;
 
 import tools.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.MediaType;
 import java.nio.charset.StandardCharsets;
-
 import java.util.List;
 
 @RestController
@@ -58,39 +63,28 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
 
         } catch (Exception e) {
-            System.out.println("💥 ERROR: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.badRequest().body(null);
         }
     }
 
-	// ⭐ Detecta tipo
-	private BookFormato detectFileType(byte[] bytes) {
+private BookFormato detectFileType(byte[] bytes) {
 		if (bytes.length < 8)
 			throw new IllegalArgumentException("Archivo muy pequeño");
 
-		String header8 = new String(bytes, 0, 8, StandardCharsets.UTF_8); // ⭐ UTF_8
+		String header8 = new String(bytes, 0, 8, StandardCharsets.UTF_8);
 
-		// PDF
 		if (header8.startsWith("%PDF-"))
 			return BookFormato.PDF;
 
-		// EPUB
 		if (header8.startsWith("PK") && bytes.length >= 60) {
-			String mimetype = new String(bytes, 30, Math.min(25, bytes.length - 30), StandardCharsets.UTF_8) // ⭐
-																												// Posición
-																												// 30
-					.toLowerCase();
+			String mimetype = new String(bytes, 30, Math.min(25, bytes.length - 30), StandardCharsets.UTF_8).toLowerCase();
 			if (mimetype.contains("epub"))
 				return BookFormato.EPUB;
 		}
 
-		// ⭐ MOBI HEADERS REALES + tu fallback
-		if (header8.startsWith("BZh") || header8.startsWith("TEXt") || header8.toLowerCase().contains("bibliote")) // ←
-																													// sample.mobi
+		if (header8.startsWith("BZh") || header8.startsWith("TEXt") || header8.toLowerCase().contains("bibliote"))
 			return BookFormato.MOBI;
 
-		// 
 		String first200 = new String(bytes, 0, Math.min(200, bytes.length), StandardCharsets.UTF_8).toLowerCase();
 		if (first200.contains("mobi") || first200.contains("text"))
 			return BookFormato.MOBI;
@@ -98,7 +92,6 @@ public class BookController {
 		throw new IllegalArgumentException("Tipo no soportado: " + header8);
 	}
 
-	// Resto endpoints igual...
 	@GetMapping
 	public ResponseEntity<List<Book>> getAllBooks() {
 		return ResponseEntity.ok(bookUseCase.findAllBooks());

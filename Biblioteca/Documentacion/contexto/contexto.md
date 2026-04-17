@@ -39,9 +39,9 @@ El proyecto está desarrollado bajo una **Arquitectura de Microservicios**, apli
 - **Infrastructure/Adapter/Out/Persistence**: Repositorios JPA
 - **Infrastructure/Config**: Configuraciones globales
 
-## Patrones de Diseño Implementados (8 patrones GoF)
+## Patrones de Diseño GoF Implementados
 
-Se implementaron 8 patrones de diseño GoF (Gang of Four) estratégicamente seleccionados según las necesidades del sistema:
+El proyecto implementa patrones de diseño GoF (Gang of Four) estratégicamente seleccionados según las necesidades del sistema. El número de patrones es dinámico y se expandirá según los requerimientos del sistema.
 
 | # | Patrón | Tipo | Ubicación en Código | Descripción |
 |---|--------|------|--------------------|-------------|
@@ -53,6 +53,7 @@ Se implementaron 8 patrones de diseño GoF (Gang of Four) estratégicamente sele
 | 6 | **Adapter** | Estructural | `SubscriptionManagerAdapter` | Permite que interfaces incompatibles trabajen juntas |
 | 7 | **Bridge** | Estructural | `LibroBridge` + `Acceso` (Premium/Gratis) | Separa abstracción de implementación para evolución independiente |
 | 8 | **Decorator** | Estructural | `NotificadorDecorator`, `EmailDecorator`, `SmsDecorator`, `WhatsappDecorator` | Agrega funcionalidades dinámicamente sin modificar clase original |
+| 9 | **Facade** | Estructural | `PrestamoFacade` + `PrestamoFacadeImpl` | Simplifica acceso a subsystems complejos (PrestamoService + NotificacionService + lógica de multas) |
 
 ### Detalles de Implementación
 
@@ -94,6 +95,35 @@ Se implementaron 8 patrones de diseño GoF (Gang of Four) estratégicamente sele
 - Ubicación: `com.biblioteca.digital.domain.notification.NotificadorDecorator`
 - Decoradores: `EmailDecorator`, `SmsDecorator`, `WhatsappDecorator`
 - Justificación: Agregar múltiples canales de notificación dinámicamente sin herencia
+
+#### 9. Facade - PrestamoFacade
+- Ubicación: `com.biblioteca.digital.domain.port.in.PrestamoFacade` (interfaz)
+- Implementación: `com.biblioteca.digital.application.facade.PrestamoFacadeImpl`
+- Métodos:
+  - `crearPrestamoCompleto()`: Valida disponibilidad, crea préstamo, notifica usuario
+  - `devolverPrestamo()`: Calcula multa por retraso, actualiza estado, notifica
+  - `renovarPrestamo()`: Verifica límite de renovaciones, prorroga fecha, notifica
+- Justificación: Orchestrar flujos complejos que involucran múltiples servicios sin exponer complejidad al Controller
+- Tests: 8 tests unitarios en `PrestamoFacadeImplTest` (todos pasando)
+
+### Tests Unitarios del Proyecto
+
+| Test Class | Descripción | Tests |
+|------------|-------------|-------|
+| `PrestamoFacadeImplTest` | Prueba el patrón Facade de préstamos | 8 tests |
+
+#### Tests de PrestamoFacadeImplTest
+
+| Test | Escenario | Resultado esperado |
+|------|-----------|-------------------|
+| `crearPrestamoCompleto_exito` | Datos válidos | Préstamo creado + notificación enviada |
+| `crearPrestamoCompleto_usuarioPremium` | Usuario premium | Notificación por múltiples canales |
+| `devolverPrestamo_exitoSinMulta` | Devolución antes de fecha | Estado DEVUELTO, multa = 0 |
+| `devolverPrestamo_exitoConMulta` | Devolución después de fecha | Multa calculada ($500/día) |
+| `devolverPrestamo_noEncontrado` | ID no existe | Exception |
+| `renovarPrestamo_exito` | Renovación válida | Nueva fecha incrementada |
+| `renovarPrestamo_limiteExcedido` | +2 renovaciones | Exception "límite excedido" |
+| `renovarPrestamo_primeraRenovacion` | Primera renovación desde null | vecesRenovado = 1 |
 
 ## Módulos del Sistema
 
@@ -158,6 +188,19 @@ frontend/
 |----------|--------|-------------|
 | `/auth/register` | POST | Registrar nuevo usuario (retorna JWT) |
 | `/auth/login` | POST | Iniciar sesión (retorna JWT) |
+
+## Endpoints de Préstamos
+
+| Endpoint | Método | Descripción |
+|----------|--------|-------------|
+| `/prestamos/completo` | POST | Crear préstamo completo (Facade) - crea + notifica |
+| `/prestamos` | POST | Crear préstamo simple |
+| `/prestamos` | GET | Listar todos los préstamos |
+| `/prestamos/{id}` | GET | Buscar préstamo por ID |
+| `/prestamos/{id}` | PUT | Actualizar préstamo |
+| `/prestamos/{id}` | DELETE | Eliminar préstamo |
+| `/prestamos/{id}/devolver` | POST | Devolver préstamo con cálculo de multa (Facade) |
+| `/prestamos/{id}/renovar?dias=X` | POST | Renovar/prorrogar préstamo (Facade) |
 
 ## Referencias
 
