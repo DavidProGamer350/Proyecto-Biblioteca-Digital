@@ -17,11 +17,7 @@ public class MobUploader implements FileUploader {
 		if (content.length < 100)
 			return false;
 
-		// MOBI: busca "MOBI" o "TEXT" en primeros 200 bytes
 		String first200 = new String(content, 0, Math.min(200, content.length), StandardCharsets.UTF_8);
-		boolean isMobi = first200.contains("MOBI") || first200.contains("TEXT");
-
-		System.out.println("MOBI first200 contains: " + isMobi);
-		return isMobi;
+		return first200.contains("MOBI") || first200.contains("TEXT");
 	}
 }

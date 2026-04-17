@@ -17,11 +17,7 @@ public class EpubUploader implements FileUploader {
 		if (content.length < EPUB_MAGIC.length())
 			return false;
 
-		// ⭐ BUSCAR "application/epub+zip" ANYWHERE (ZIP flexible)
 		String full = new String(content, java.nio.charset.StandardCharsets.UTF_8);
-		boolean isEpub = full.contains(EPUB_MAGIC);
-
-		System.out.println("EPUB full contains: " + isEpub);
-		return isEpub;
+		return full.contains(EPUB_MAGIC);
 	}
 }

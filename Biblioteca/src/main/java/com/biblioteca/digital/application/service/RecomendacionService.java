@@ -3,7 +3,6 @@ package com.biblioteca.digital.application.service;
 import com.biblioteca.digital.domain.model.Recomendacion;
 import com.biblioteca.digital.domain.port.in.RecomendacionUseCase;
 import com.biblioteca.digital.domain.port.out.RecomendacionRepositoryPort;
-import com.biblioteca.digital.domain.port.out.UserRepositoryPort;
 import com.biblioteca.digital.domain.service.RecomendacionRegistry;
 import java.time.LocalDate;
 import java.util.List;

@@ -11,7 +11,6 @@ import com.biblioteca.digital.domain.service.upload.uploaders.EpubUploader;
 public class EpubUploaderCreator extends FileUploaderCreator {
 	@Override
 	protected FileUploader createUploader() {
-   	 System.out.println("🔧 FACTORY METHOD: EpubUploaderCreator.createUploader()");
 		return new EpubUploader();
 	}
 

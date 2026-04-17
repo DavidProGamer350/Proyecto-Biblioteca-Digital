@@ -54,7 +54,7 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
 		user.setEmail(entity.getEmail());
 		user.setPasswordHash(entity.getPasswordHash());
 		user.setRol(entity.getRol());
-		user.setSuscripcionActiva(entity.isSuscripcionActiva()); // ← CORREGIDO
+		user.setSuscripcionActiva(entity.isSuscripcionActiva());
 		user.setFechaSuscripcion(entity.getFechaSuscripcion());
 		user.setFechaExpiracionSuscripcion(entity.getFechaExpiracionSuscripcion());
 		return user;

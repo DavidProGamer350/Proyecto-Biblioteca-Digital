@@ -4,7 +4,6 @@ import com.biblioteca.digital.domain.model.Book;
 import com.biblioteca.digital.domain.port.in.BookUseCase;
 import com.biblioteca.digital.domain.port.out.BookRepositoryPort;
 import java.util.List;
-import java.util.Optional;
 
 public class BookService implements BookUseCase {
 

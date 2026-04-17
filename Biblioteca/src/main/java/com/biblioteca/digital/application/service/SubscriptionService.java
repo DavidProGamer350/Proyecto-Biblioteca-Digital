@@ -14,7 +14,6 @@ public class SubscriptionService {
     }
 
     public boolean verificarSuscripcionPremium(User user) {
-    	 System.out.println("Client: usando la interfaz SubscriptionChecker...");
-    	return subscriptionChecker.isPremium(user);
+        return subscriptionChecker.isPremium(user);
     }
 }
