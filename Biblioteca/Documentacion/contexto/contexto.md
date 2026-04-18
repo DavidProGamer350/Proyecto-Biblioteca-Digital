@@ -54,6 +54,7 @@ El proyecto implementa patrones de diseño GoF (Gang of Four) estratégicamente 
 | 7 | **Bridge** | Estructural | `LibroBridge` + `Acceso` (Premium/Gratis) | Separa abstracción de implementación para evolución independiente |
 | 8 | **Decorator** | Estructural | `NotificadorDecorator`, `EmailDecorator`, `SmsDecorator`, `WhatsappDecorator` | Agrega funcionalidades dinámicamente sin modificar clase original |
 | 9 | **Facade** | Estructural | `PrestamoFacade` + `PrestamoFacadeImpl` | Simplifica acceso a subsystems complejos (PrestamoService + NotificacionService + lógica de multas) |
+| 10 | **Composite** | Estructural | `Reporte` + `ReporteCompuesto` + `ReporteBibliotecaCompleto` | Permite tratar reportes simples y compuestos de manera uniforme mediante estructura de árbol |
 
 ### Detalles de Implementación
 
@@ -106,11 +107,35 @@ El proyecto implementa patrones de diseño GoF (Gang of Four) estratégicamente 
 - Justificación: Orchestrar flujos complejos que involucran múltiples servicios sin exponer complejidad al Controller
 - Tests: 8 tests unitarios en `PrestamoFacadeImplTest` (todos pasando)
 
+#### 10. Composite - Reportes de Préstamos
+- Ubicación: `com.biblioteca.digital.domain.model.reporte.Reporte` (interfaz)
+- Implementación:
+  - Clase abstracta: `ReporteBase`
+  - Reportes simples (hojas): `ReportePrestamosActivos`, `ReportePrestamosVencidos`, `ReporteMultasPendientes`
+  - Composite: `ReporteCompuesto`, `ReporteBibliotecaCompleto`
+- Estructura jerárquica:
+  ```
+                    [Reporte] (interface)
+                          │
+           ┌──────────────┴──────────────┐
+           ▼                              ▼
+    [ReporteBase]                  [ReporteCompuesto]
+    (Abstract)                        (Composite)
+           │                              │
+     ┌─────┴─────┐                 ┌─────┴─────┐
+     ▼           ▼                 ▼           ▼
+  Activos    Vencidos        BibliotecaCompleto
+  Multas       (hojas)            (contiene hijos)
+  ```
+- Justificación: Generar reportes simples o compuestos de manera uniforme, permitiendo al Controller tratar reportes individuales y completos de la misma forma
+- Tests: 13 tests unitarios en `ReporteServiceTest` (todos pasando)
+
 ### Tests Unitarios del Proyecto
 
 | Test Class | Descripción | Tests |
 |------------|-------------|-------|
 | `PrestamoFacadeImplTest` | Prueba el patrón Facade de préstamos | 8 tests |
+| `ReporteServiceTest` | Prueba el patrón Composite de reportes | 13 tests |
 
 #### Tests de PrestamoFacadeImplTest
 
@@ -124,6 +149,24 @@ El proyecto implementa patrones de diseño GoF (Gang of Four) estratégicamente 
 | `renovarPrestamo_exito` | Renovación válida | Nueva fecha incrementada |
 | `renovarPrestamo_limiteExcedido` | +2 renovaciones | Exception "límite excedido" |
 | `renovarPrestamo_primeraRenovacion` | Primera renovación desde null | vecesRenovado = 1 |
+
+#### Tests de ReporteServiceTest
+
+| Test | Escenario | Resultado esperado |
+|------|-----------|-------------------|
+| `generarReporteActivos_vacio` | Sin préstamos activos | Mensaje apropiado |
+| `generarReporteActivos_conDatos` | Con préstamos activos | Formato correcto |
+| `generarReporteVencidos_vacio` | Sin préstamos vencidos | Mensaje apropiado |
+| `generarReporteVencidos_conDatos` | Con préstamos vencidos | Formato correcto |
+| `generarReporteMultas_vacio` | Sin multas | Mensaje apropiado |
+| `generarReporteMultas_conDatos` | Con multas | Formato correcto |
+| `generarReporteCompleto_sinDatos` | Reporte compuesto vacío | Estructura correcta |
+| `generarReporteCompleto_conDatos` | Reporte compuesto con datos | Combina todos |
+| `reporteCompuesto_tituloCorrecto` | Verificar título | Correcto |
+| `reporteCompuesto_isCompuesto_true` | Verificar isCompuesto | true para compuesto |
+| `reporteSimple_isCompuesto_false` | Verificar isCompuesto | false para simple |
+| `generarReporteVencidos_diasCorrecto` | Calcular días de retraso | Correcto |
+| `generarReporteMultas_sumaTotal` | Sumar total de multas | $4500 |
 
 ## Módulos del Sistema
 
