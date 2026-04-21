@@ -55,6 +55,7 @@ El proyecto implementa patrones de diseño GoF (Gang of Four) estratégicamente 
 | 8 | **Decorator** | Estructural | `NotificadorDecorator`, `EmailDecorator`, `SmsDecorator`, `WhatsappDecorator` | Agrega funcionalidades dinámicamente sin modificar clase original |
 | 9 | **Facade** | Estructural | `PrestamoFacade` + `PrestamoFacadeImpl` | Simplifica acceso a subsystems complejos (PrestamoService + NotificacionService + lógica de multas) |
 | 10 | **Composite** | Estructural | `Reporte` + `ReporteCompuesto` + `ReporteBibliotecaCompleto` | Permite tratar reportes simples y compuestos de manera uniforme mediante estructura de árbol |
+| 11 | **Virtual Proxy** | Estructural | `BookContent` + `BookProxy` | Carga diferida de contenido de libros para optimizar memoria y rendimiento |
 
 ### Detalles de Implementación
 
@@ -130,12 +131,20 @@ El proyecto implementa patrones de diseño GoF (Gang of Four) estratégicamente 
 - Justificación: Generar reportes simples o compuestos de manera uniforme, permitiendo al Controller tratar reportes individuales y completos de la misma forma
 - Tests: 13 tests unitarios en `ReporteServiceTest` (todos pasando)
 
+#### 11. Virtual Proxy - BookProxy (lazy loading)
+- Ubicación: `com.biblioteca.digital.domain.model.libro.BookProxy`
+- Interfaz: `com.biblioteca.digital.domain.model.libro.BookContent`
+- Clases reutilizadas: `Book`, `BookFormato`, `BookService`
+- Justificación: Cargar contenido pesado (MB) solo cuando se necesita, no al listar catálogos
+- Tests: 11 tests unitarios en `BookProxyTest` (todos pasando)
+
 ### Tests Unitarios del Proyecto
 
 | Test Class | Descripción | Tests |
 |------------|-------------|-------|
 | `PrestamoFacadeImplTest` | Prueba el patrón Facade de préstamos | 8 tests |
 | `ReporteServiceTest` | Prueba el patrón Composite de reportes | 13 tests |
+| `BookProxyTest` | Prueba el patrón Virtual Proxy de libros | 11 tests |
 
 #### Tests de PrestamoFacadeImplTest
 
