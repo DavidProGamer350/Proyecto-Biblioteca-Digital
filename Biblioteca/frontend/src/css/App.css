@@ -886,3 +886,40 @@ select:focus {
     padding: var(--space-sm) var(--space-md);
   }
 }
+
+/* ============================================
+   Próximamente Page
+   ============================================ */
+
+.proximamente {
+  background: linear-gradient(135deg, var(--color-bg-warm) 0%, var(--color-bg) 100%);
+  border-left: 4px solid var(--color-accent);
+  padding: var(--space-xl);
+  margin: var(--space-lg) 0;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.proximamente p {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .proximamente {
+    padding: var(--space-lg);
+    min-height: 150px;
+  }
+  
+  .proximamente p {
+    font-size: 1.125rem;
+  }
+}

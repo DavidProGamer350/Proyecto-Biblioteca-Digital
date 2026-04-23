@@ -10,7 +10,7 @@ export const DashboardPage = () => {
       <nav className="navbar">
         <Link to="/dashboard" className="navbar-brand">Biblioteca Digital</Link>
         <div className="navbar-menu">
-          <Link to="/books" className="navbar-link">Catálogo</Link>
+          <Link to="/catalogo" className="navbar-link">Catálogo</Link>
           <Link to="/profile" className="navbar-link">Mi Perfil</Link>
           <span className="navbar-user">Bienvenido, {user?.name}</span>
           <Link to="/logout" className="navbar-link">Cerrar Sesión</Link>
@@ -21,7 +21,7 @@ export const DashboardPage = () => {
         <h1 className="dashboard-title">Panel de Control</h1>
         
         <div className="dashboard-grid">
-          <Link to="/books" className="dashboard-card">
+          <Link to="/catalogo" className="dashboard-card">
             <h3>Catálogo de Libros</h3>
             <p>Explora y descarga libros en formato PDF, EPUB y MOBI</p>
           </Link>
@@ -43,7 +43,7 @@ export const DashboardPage = () => {
                 <p>Administra los usuarios del sistema</p>
               </Link>
 
-              <Link to="/admin/books" className="dashboard-card">
+              <Link to="/libros" className="dashboard-card">
                 <h3>Gestión de Libros</h3>
                 <p>Agrega, modifica o elimina libros</p>
               </Link>
