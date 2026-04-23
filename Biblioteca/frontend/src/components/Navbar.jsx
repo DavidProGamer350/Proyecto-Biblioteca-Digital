@@ -15,7 +15,9 @@ export const Navbar = () => {
     <nav className="navbar">
       <Link to="/dashboard" className="navbar-brand">Biblioteca Digital</Link>
       <div className="navbar-menu">
-        <Link to="/books" className="navbar-link">Catálogo</Link>
+        <Link to="/catalogo" className="navbar-link">Catálogo</Link>
+        <Link to="/prestamos" className="navbar-link">Préstamos</Link>
+        <Link to="/recomendaciones" className="navbar-link">Recomendaciones</Link>
         <span className="navbar-user">{user.name} ({user.rol})</span>
         <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '5px 10px' }}>
           Cerrar Sesión

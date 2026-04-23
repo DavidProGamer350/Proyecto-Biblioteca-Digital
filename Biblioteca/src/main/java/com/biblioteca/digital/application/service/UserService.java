@@ -22,10 +22,8 @@ public class UserService implements UserUseCase {
         if (user.getEmail() == null || !user.getEmail().contains("@")) {
             throw new IllegalArgumentException("Email inválido");
         }
-        // Cifrar contraseña con BCrypt
-        if (user.getPasswordHash() != null && !user.getPasswordHash().isEmpty()) {
-            user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
-        }
+        // El password ya viene hasheado desde el controller
+        // No volver a hashear aquí para evitar doble hasheo
         return userRepositoryPort.save(user);
     }
 
@@ -46,10 +44,8 @@ public class UserService implements UserUseCase {
     
     @Override
     public User updateUser(Long id, User user) {
-        // Cifrar contraseña con BCrypt si se proporciona una nueva
-        if (user.getPasswordHash() != null && !user.getPasswordHash().isEmpty()) {
-            user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
-        }
+        // El password ya viene hasheado desde el controller
+        // No volver a hashear aquí para evitar doble hasheo
         return userRepositoryPort.update(id, user);
     }
 

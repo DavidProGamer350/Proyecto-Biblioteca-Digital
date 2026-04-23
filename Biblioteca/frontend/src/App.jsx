@@ -6,6 +6,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { PrivateRoute } from './components/PrivateRoute';
+import { ProximamentePage } from './components/ProximamentePage';
 
 const PrivateRouteWrapper = ({ children }) => {
   return <PrivateRoute>{children}</PrivateRoute>;
@@ -13,6 +14,12 @@ const PrivateRouteWrapper = ({ children }) => {
 
 const AdminRouteWrapper = ({ children }) => {
   return <PrivateRoute requiredRol="ADMIN">{children}</PrivateRoute>;
+};
+
+const LogoutHandler = () => {
+  localStorage.clear();
+  window.location.href = '/login';
+  return null;
 };
 
 function App() {
@@ -27,9 +34,24 @@ function App() {
               <DashboardPage />
             </PrivateRouteWrapper>
           } />
-          <Route path="/books" element={
+          <Route path="/prestamos" element={
             <PrivateRouteWrapper>
-              <BooksPage />
+              <ProximamentePage titulo="Préstamos" />
+            </PrivateRouteWrapper>
+          } />
+          <Route path="/libros" element={
+            <PrivateRouteWrapper>
+              <ProximamentePage titulo="Libros" />
+            </PrivateRouteWrapper>
+          } />
+          <Route path="/catalogo" element={
+            <PrivateRouteWrapper>
+              <ProximamentePage titulo="Catálogo" />
+            </PrivateRouteWrapper>
+          } />
+          <Route path="/recomendaciones" element={
+            <PrivateRouteWrapper>
+              <ProximamentePage titulo="Recomendaciones" />
             </PrivateRouteWrapper>
           } />
           <Route path="/profile" element={
@@ -50,31 +72,5 @@ function App() {
     </AuthProvider>
   );
 }
-
-const BooksPage = () => {
-  return (
-    <div>
-      <nav className="navbar">
-        <a href="/dashboard" className="navbar-brand">Biblioteca Digital</a>
-        <div className="navbar-menu">
-          <a href="/dashboard" className="navbar-link">Panel</a>
-          <a href="/books" className="navbar-link">Catálogo</a>
-          <a href="/profile" className="navbar-link">Mi Perfil</a>
-          <a href="/logout" className="navbar-link">Cerrar Sesión</a>
-        </div>
-      </nav>
-      <div className="container">
-        <h1>Catálogo de Libros</h1>
-        <p>Próximamente: Lista de libros disponibles</p>
-      </div>
-    </div>
-  );
-};
-
-const LogoutHandler = () => {
-  localStorage.clear();
-  window.location.href = '/login';
-  return null;
-};
 
 export default App;
