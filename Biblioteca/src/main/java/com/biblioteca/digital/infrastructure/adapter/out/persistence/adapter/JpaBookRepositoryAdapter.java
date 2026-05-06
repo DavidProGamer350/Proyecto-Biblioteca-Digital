@@ -7,6 +7,7 @@ import com.biblioteca.digital.infrastructure.adapter.out.persistence.entity.Book
 import com.biblioteca.digital.infrastructure.adapter.out.persistence.repository.SpringDataBookRepository;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,16 +45,22 @@ public class JpaBookRepositoryAdapter implements BookRepositoryPort {
     }
 
     @Override
+    @Transactional
     public Book update(Long id, Book book) {
         Optional<BookEntity> optionalEntity = repository.findById(id);
         if (optionalEntity.isEmpty()) return null;
-        
+
         BookEntity entity = optionalEntity.get();
-        mapToEntity(book, entity);
-        entity.setId(id);
-        
-        BookEntity updated = repository.save(entity);
-        return mapToDomain(updated);
+        entity.setTitulo(book.getTitulo());
+        entity.setAutor(book.getAutor());
+        entity.setIsbn(book.getIsbn());
+        entity.setFormato(book.getFormato().name());
+        if (book.getArchivoPath() != null && !book.getArchivoPath().isEmpty()) {
+            entity.setArchivoPath(book.getArchivoPath());
+        }
+
+        BookEntity saved = repository.save(entity);
+        return mapToDomain(saved);
     }
 
     @Override

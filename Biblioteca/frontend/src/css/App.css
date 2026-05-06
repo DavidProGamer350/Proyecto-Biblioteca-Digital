@@ -352,6 +352,38 @@ a:hover {
   font-style: italic;
 }
 
+.navbar-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  min-width: 200px;
+  z-index: 1000;
+  margin-top: 5px;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 15px;
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: var(--color-bg);
+  color: var(--color-primary);
+}
+
 /* ============================================
    DASHBOARD
    ============================================ */
@@ -922,4 +954,47 @@ select:focus {
   .proximamente p {
     font-size: 1.125rem;
   }
+}
+
+/* ==========================================
+   Modal Login Prompt
+   ========================================== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--color-surface);
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal h2 {
+  font-family: var(--font-display);
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+}
+
+.modal p {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-lg);
+  line-height: 1.6;
+}
+
+.modal p strong {
+  color: var(--color-text);
 }

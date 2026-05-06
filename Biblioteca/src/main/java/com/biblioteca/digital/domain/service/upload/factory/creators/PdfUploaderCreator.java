@@ -11,6 +11,7 @@ import com.biblioteca.digital.domain.service.upload.uploaders.PdfUploader;
 public class PdfUploaderCreator extends FileUploaderCreator {
     @Override
     protected FileUploader createUploader() {
+    	 System.out.println("🔧 FACTORY METHOD: PdfUploaderCreator.createUploader()");
         return new PdfUploader();
     }
     

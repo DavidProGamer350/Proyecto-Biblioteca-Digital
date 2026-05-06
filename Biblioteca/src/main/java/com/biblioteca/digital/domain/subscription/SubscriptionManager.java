@@ -8,6 +8,10 @@ public enum SubscriptionManager {
 	INSTANCE; // única instancia
 
 	public boolean isPremium(User user) {
+		System.out.println("Adaptee/Singleton: ejecutando lógica real de suscripción...");
+
+		System.out.println("HashCode instancia: " + this.hashCode());
+
 		if (!user.isSuscripcionActiva()) {
 			return false;
 		}

@@ -10,6 +10,7 @@ public class SubscriptionManagerAdapter implements SubscriptionChecker {
 
     @Override
     public boolean isPremium(User user) {
+    	System.out.println("Adapter: traduciendo llamada del cliente hacia SubscriptionManager...");
         return SubscriptionManager.INSTANCE.isPremium(user);
     }
 }
