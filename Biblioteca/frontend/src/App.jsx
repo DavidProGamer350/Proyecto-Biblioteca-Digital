@@ -11,6 +11,7 @@ import { BookEditPage } from './pages/BookEditPage';
 import { CatalogPage } from './pages/CatalogPage';
 import { LoanListPage } from './pages/LoanListPage';
 import { AdminLoansPage } from './pages/AdminLoansPage';
+import { ReportesPage } from './pages/ReportesPage';
 import { PrivateRoute } from './components/PrivateRoute';
 import { ProximamentePage } from './components/ProximamentePage';
 
@@ -69,6 +70,11 @@ function App() {
           <Route path="/admin/prestamos" element={
             <AdminRouteWrapper>
               <AdminLoansPage />
+            </AdminRouteWrapper>
+          } />
+          <Route path="/reportes" element={
+            <AdminRouteWrapper>
+              <ReportesPage />
             </AdminRouteWrapper>
           } />
           <Route path="/recomendaciones" element={

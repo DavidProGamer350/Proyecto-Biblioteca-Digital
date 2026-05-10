@@ -41,6 +41,9 @@ export const Navbar = () => {
                 <Link to="/admin/prestamos" className="dropdown-item" onClick={() => setShowGestion(false)}>
                   Gestionar Préstamos
                 </Link>
+                <Link to="/reportes" className="dropdown-item" onClick={() => setShowGestion(false)}>
+                  Reportes
+                </Link>
               </div>
             )}
           </div>
