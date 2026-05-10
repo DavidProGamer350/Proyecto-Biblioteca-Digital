@@ -3,6 +3,7 @@ package com.biblioteca.digital.application.service;
 import com.biblioteca.digital.domain.model.Recomendacion;
 import com.biblioteca.digital.domain.port.in.RecomendacionUseCase;
 import com.biblioteca.digital.domain.port.out.RecomendacionRepositoryPort;
+import com.biblioteca.digital.domain.port.out.UserRepositoryPort;
 import com.biblioteca.digital.domain.service.RecomendacionRegistry;
 import java.time.LocalDate;
 import java.util.List;
@@ -61,6 +62,11 @@ public class RecomendacionService implements RecomendacionUseCase {
 	@Override
 	public Recomendacion getRecomendacionById(Long id) {
 		return recomendacionRepositoryPort.findById(id);
+	}
+
+	@Override
+	public List<Recomendacion> getRecomendacionesByUsuarioId(Long usuarioId) {
+		return recomendacionRepositoryPort.findByUsuarioId(usuarioId);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.biblioteca.digital.infrastructure.adapter.out.persistence.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "prestamos")

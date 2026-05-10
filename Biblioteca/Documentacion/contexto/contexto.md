@@ -57,6 +57,26 @@ El proyecto implementa patrones de diseño GoF (Gang of Four) estratégicamente 
 | 10 | **Composite** | Estructural | `Reporte` + `ReporteCompuesto` + `ReporteBibliotecaCompleto` | Permite tratar reportes simples y compuestos de manera uniforme mediante estructura de árbol |
 | 11 | **Virtual Proxy** | Estructural | `BookContent` + `BookProxy` | Carga diferida de contenido de libros para optimizar memoria y rendimiento |
 
+## Estado Actual del Proyecto
+
+### ✅ Completado
+- Backend compila exitosamente
+- 33 tests unitarios pasando (8 Facade + 13 Composite + 11 Proxy + 1 Context)
+- Patrón Virtual Proxy implementado y probado
+- Seguridad configurada (JWT + BCrypt + CORS)
+- Dependencias de seguridad agregadas al pom.xml
+- Método `findBookById()` agregado a `BookUseCase` y `BookService`
+- Campo `vecesRenovado` agregado a `Prestamo`
+
+### 🔄 En Progreso
+- Pruebas de integración frontend-backend
+- Flujo completo: login → catálogo → préstamo → descarga → devolución
+
+### 📋 Pendiente
+- Verificar que admin ve todas las opciones en navbar del catálogo
+- Probar descarga de libros con préstamo activo
+- Configurar base de datos con datos de prueba
+
 ### Detalles de Implementación
 
 #### 1. Singleton (Enum) - SubscriptionManager
@@ -240,6 +260,18 @@ frontend/
 |----------|--------|-------------|
 | `/auth/register` | POST | Registrar nuevo usuario (retorna JWT) |
 | `/auth/login` | POST | Iniciar sesión (retorna JWT) |
+
+## Endpoints de Libros
+
+| Endpoint | Método | Descripción |
+|----------|--------|-------------|
+| `/books/upload` | POST | Subir libro (JSON + archivo) |
+| `/books` | GET | Listar todos los libros |
+| `/books/isbn/{isbn}` | GET | Buscar libro por ISBN |
+| `/books/{id}` | GET | Buscar libro por ID |
+| `/books/{id}/download` | GET | Descargar libro (requiere préstamo activo) |
+| `/books/{id}` | PUT | Actualizar libro |
+| `/books/{id}` | DELETE | Eliminar libro |
 
 ## Endpoints de Préstamos
 

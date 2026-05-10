@@ -1,6 +1,7 @@
 package com.biblioteca.digital.domain.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class Prestamo {
 

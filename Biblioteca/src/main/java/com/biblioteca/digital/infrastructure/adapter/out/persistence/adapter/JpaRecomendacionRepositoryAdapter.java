@@ -1,11 +1,14 @@
 package com.biblioteca.digital.infrastructure.adapter.out.persistence.adapter;
 
+
 import com.biblioteca.digital.domain.model.Recomendacion;
 import com.biblioteca.digital.domain.port.out.RecomendacionRepositoryPort;
 import com.biblioteca.digital.infrastructure.adapter.out.persistence.entity.RecomendacionEntity;
 import com.biblioteca.digital.infrastructure.adapter.out.persistence.repository.SpringDataRecomendacionesRepository;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -33,6 +36,11 @@ public class JpaRecomendacionRepositoryAdapter implements RecomendacionRepositor
     @Override
     public Recomendacion findById(Long id) {
         return repository.findById(id).map(this::mapToDomain).orElse(null);
+    }
+
+    @Override
+    public List<Recomendacion> findByUsuarioId(Long usuarioId) {
+        return repository.findByUsuarioId(usuarioId).stream().map(this::mapToDomain).collect(Collectors.toList());
     }
 
     @Override
@@ -75,6 +83,7 @@ public class JpaRecomendacionRepositoryAdapter implements RecomendacionRepositor
                 entity.getTipo(),
                 entity.getPrioridad(),
                 entity.getFechaGeneracion(),
-                entity.getActiva());
+                entity.getActiva()
+        );
     }
 }

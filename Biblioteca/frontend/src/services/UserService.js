@@ -1,5 +1,4 @@
 const API_URL = '/users';
-const BACKEND_URL = 'http://localhost:8080';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
@@ -11,7 +10,7 @@ const getAuthHeaders = () => {
 
 export const UserService = {
   getAll: async () => {
-    const response = await fetch(`${BACKEND_URL}${API_URL}`, {
+    const response = await fetch(`${API_URL}`, {
       headers: getAuthHeaders()
     });
     if (!response.ok) throw new Error('Error al obtener usuarios');
@@ -19,7 +18,7 @@ export const UserService = {
   },
 
   getById: async (id) => {
-    const response = await fetch(`${BACKEND_URL}${API_URL}/${id}`, {
+    const response = await fetch(`${API_URL}/${id}`, {
       headers: getAuthHeaders()
     });
     if (!response.ok) throw new Error('Error al obtener usuario');
@@ -27,7 +26,7 @@ export const UserService = {
   },
 
   createUser: async (userData) => {
-    const response = await fetch(`${BACKEND_URL}${API_URL}`, {
+    const response = await fetch(`${API_URL}`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(userData)
@@ -37,7 +36,7 @@ export const UserService = {
   },
 
   update: async (id, userData) => {
-    const response = await fetch(`${BACKEND_URL}${API_URL}/${id}`, {
+    const response = await fetch(`${API_URL}/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(userData)
@@ -47,7 +46,7 @@ export const UserService = {
   },
 
   togglePremium: async (id) => {
-    const response = await fetch(`${BACKEND_URL}${API_URL}/${id}/premium`, {
+    const response = await fetch(`${API_URL}/${id}/premium`, {
       method: 'PUT',
       headers: getAuthHeaders()
     });
@@ -56,7 +55,7 @@ export const UserService = {
   },
 
   delete: async (id) => {
-    const response = await fetch(`${BACKEND_URL}${API_URL}/${id}`, {
+    const response = await fetch(`${API_URL}/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -64,7 +63,7 @@ export const UserService = {
   },
 
   isPremium: async (id) => {
-    const response = await fetch(`${BACKEND_URL}${API_URL}/${id}/premium`, {
+    const response = await fetch(`${API_URL}/${id}/premium`, {
       headers: getAuthHeaders()
     });
     if (!response.ok) return false;

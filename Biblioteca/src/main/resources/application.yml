@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/biblioteca_digital
-    username: root
-    password: root
+    username: root    
+    password: root   
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -16,7 +16,6 @@ spring:
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-# JWT Configuration
 jwt:
-  secret: bibliotecadigital2026secretkeyparagenerartokensjwtparaelproyecto
-  expiration: 86400000  # 24 horas en milisegundos
+  secret: "miClaveSecretaSuperSeguraParaJWT2025!"
+  expiration: 86400000
