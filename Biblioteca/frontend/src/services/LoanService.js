@@ -48,6 +48,22 @@ export const LoanService = {
     return response.json();
   },
 
+  update: async (id, data) => {
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al actualizar préstamo');
+    }
+    return response.json();
+  },
+
   returnLoan: async (id) => {
     const response = await fetch(`${API_URL}/${id}/devolver`, {
       method: 'POST',

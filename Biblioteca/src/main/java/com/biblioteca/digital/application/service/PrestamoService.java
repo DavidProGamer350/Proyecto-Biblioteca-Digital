@@ -41,6 +41,27 @@ public class PrestamoService implements PrestamoUseCase {
     }
 
     @Override
+    public Prestamo devolverPrestamo(Long id) {
+        Prestamo existing = repository.findById(id);
+        if (existing == null) return null;
+
+        Prestamo devuelto = Prestamo.builder()
+            .id(existing.getId())
+            .usuarioId(existing.getUsuarioId())
+            .libroId(existing.getLibroId())
+            .fechaPrestamo(existing.getFechaPrestamo())
+            .fechaDevolucionEsperada(existing.getFechaDevolucionEsperada())
+            .fechaDevolucionReal(java.time.LocalDate.now())
+            .estado("DEVUELTO")
+            .observaciones(existing.getObservaciones())
+            .multasAcumuladas(0)
+            .requiereAprobacion(existing.getRequiereAprobacion())
+            .build();
+
+        return repository.save(devuelto);
+    }
+
+    @Override
     public void eliminarPrestamo(Long id) {
         repository.deleteById(id);
     }

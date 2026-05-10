@@ -9,5 +9,6 @@ public interface PrestamoUseCase {
     List<Prestamo> listarPrestamos();
     Prestamo buscarPrestamo(Long id);
     Prestamo actualizarPrestamo(Long id, Prestamo prestamo);
+    Prestamo devolverPrestamo(Long id);
     void eliminarPrestamo(Long id);
 }

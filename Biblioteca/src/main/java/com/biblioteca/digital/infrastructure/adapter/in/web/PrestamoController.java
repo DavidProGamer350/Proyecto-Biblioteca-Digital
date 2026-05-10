@@ -61,23 +61,48 @@ public class PrestamoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Prestamo> actualizarPrestamo(@PathVariable Long id, @RequestBody Prestamo updateData) {
+    public ResponseEntity<Prestamo> actualizarPrestamo(@PathVariable Long id, @RequestBody Map<String, Object> json) {
         Prestamo existing = prestamoUseCase.buscarPrestamo(id);
+        if (existing == null) return ResponseEntity.notFound().build();
 
-        Prestamo updated = Prestamo.builder()
+        Prestamo.Builder builder = Prestamo.builder()
                 .id(existing.getId())
                 .usuarioId(existing.getUsuarioId())
                 .libroId(existing.getLibroId())
                 .fechaPrestamo(existing.getFechaPrestamo())
-                .fechaDevolucionEsperada(existing.getFechaDevolucionEsperada())
-                .fechaDevolucionReal(updateData.getFechaDevolucionReal())
-                .estado(updateData.getEstado())
-                .observaciones(existing.getObservaciones())
-                .multasAcumuladas(updateData.getMultasAcumuladas())
-                .motivoRechazo(updateData.getMotivoRechazo())
-                .build();
+                .fechaDevolucionEsperada(
+                    json.containsKey("fechaDevolucionEsperada") && json.get("fechaDevolucionEsperada") != null
+                        ? java.time.LocalDate.parse((String) json.get("fechaDevolucionEsperada"))
+                        : existing.getFechaDevolucionEsperada())
+                .fechaDevolucionReal(existing.getFechaDevolucionReal())
+                .estado(
+                    json.containsKey("estado") && json.get("estado") != null
+                        ? (String) json.get("estado")
+                        : existing.getEstado())
+                .observaciones(
+                    json.containsKey("observaciones") && json.get("observaciones") != null
+                        ? (String) json.get("observaciones")
+                        : existing.getObservaciones())
+                .multasAcumuladas(
+                    json.containsKey("multasAcumuladas") && json.get("multasAcumuladas") != null
+                        ? ((Number) json.get("multasAcumuladas")).intValue()
+                        : existing.getMultasAcumuladas())
+                .motivoRechazo(existing.getMotivoRechazo())
+                .vecesRenovado(existing.getVecesRenovado())
+                .notificacionEmail(existing.getNotificacionEmail())
+                .codigoPrestamo(existing.getCodigoPrestamo())
+                .requiereAprobacion(existing.getRequiereAprobacion());
 
+        Prestamo updated = builder.build();
         return ResponseEntity.ok(prestamoUseCase.actualizarPrestamo(id, updated));
+    }
+
+    @PostMapping("/{id}/devolver")
+    public ResponseEntity<Prestamo> devolverPrestamo(@PathVariable Long id) {
+        Prestamo prestamo = prestamoUseCase.devolverPrestamo(id);
+        return prestamo != null ?
+                ResponseEntity.ok(prestamo) :
+                ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")

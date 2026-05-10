@@ -47,6 +47,7 @@ public class JpaPrestamoRepositoryAdapter implements PrestamoRepositoryPort {
     }
 
     private void mapToEntity(Prestamo prestamo, PrestamoEntity entity) {
+        entity.setId(prestamo.getId());
         entity.setUsuarioId(prestamo.getUsuarioId());
         entity.setLibroId(prestamo.getLibroId());
         entity.setFechaPrestamo(prestamo.getFechaPrestamo());
