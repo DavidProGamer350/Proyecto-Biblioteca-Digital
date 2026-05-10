@@ -12,8 +12,8 @@ import { CatalogPage } from './pages/CatalogPage';
 import { LoanListPage } from './pages/LoanListPage';
 import { AdminLoansPage } from './pages/AdminLoansPage';
 import { ReportesPage } from './pages/ReportesPage';
+import { RecomendacionesPage } from './pages/RecomendacionesPage';
 import { PrivateRoute } from './components/PrivateRoute';
-import { ProximamentePage } from './components/ProximamentePage';
 
 const PrivateRouteWrapper = ({ children }) => {
   return <PrivateRoute>{children}</PrivateRoute>;
@@ -79,7 +79,7 @@ function App() {
           } />
           <Route path="/recomendaciones" element={
             <PrivateRouteWrapper>
-              <ProximamentePage titulo="Recomendaciones" />
+              <RecomendacionesPage />
             </PrivateRouteWrapper>
           } />
           <Route path="/profile" element={

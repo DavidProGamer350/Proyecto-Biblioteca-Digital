@@ -39,6 +39,11 @@ public class JpaRecomendacionRepositoryAdapter implements RecomendacionRepositor
     }
 
     @Override
+    public List<Recomendacion> findByUsuarioId(Long usuarioId) {
+        return repository.findByUsuarioId(usuarioId).stream().map(this::mapToDomain).collect(Collectors.toList());
+    }
+
+    @Override
     public Recomendacion findByUsuarioIdAndLibroId(Long usuarioId, Long libroId) {
         return repository.findByUsuarioIdAndLibroId(usuarioId, libroId).map(this::mapToDomain).orElse(null);
     }

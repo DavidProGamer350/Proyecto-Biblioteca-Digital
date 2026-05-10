@@ -65,6 +65,11 @@ public class RecomendacionService implements RecomendacionUseCase {
 	}
 
 	@Override
+	public List<Recomendacion> getRecomendacionesByUsuarioId(Long usuarioId) {
+		return recomendacionRepositoryPort.findByUsuarioId(usuarioId);
+	}
+
+	@Override
 	public Recomendacion getRecomendacionByUsuarioAndLibro(Long usuarioId, Long libroId) {
 		return recomendacionRepositoryPort.findByUsuarioIdAndLibroId(usuarioId, libroId);
 	}
