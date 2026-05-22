@@ -13,6 +13,8 @@ public interface RecomendacionRepositoryPort {
 
 	Recomendacion findByUsuarioIdAndLibroId(Long usuarioId, Long libroId);
 
+	List<Recomendacion> findByUsuarioId(Long usuarioId);
+
 	Recomendacion update(Long id, Recomendacion recomendacion);
 
 	void deleteById(Long id);

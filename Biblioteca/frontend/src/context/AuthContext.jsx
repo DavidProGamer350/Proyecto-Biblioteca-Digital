@@ -30,6 +30,25 @@ export const AuthProvider = ({ children }) => {
       email: response.email,
       rol: response.rol,
     });
+    
+    // Verificar si hay un préstamo pendiente después del login
+    const pendingLoan = localStorage.getItem('pendingLoan');
+    if (pendingLoan) {
+      localStorage.removeItem('pendingLoan');
+      const loanData = JSON.parse(pendingLoan);
+      // Crear el préstamo
+      try {
+        await LoanService.create(response.id, loanData.libroId);
+        alert(`Préstamo de "${loanData.titulo}" creado exitosamente. Tienes 14 días.`);
+        window.location.href = '/mis-prestamos';
+      } catch (err) {
+        alert('Error al crear préstamo: ' + err.message);
+        window.location.href = '/catalogo';
+      }
+    } else {
+      window.location.href = '/catalogo';
+    }
+    
     return response;
   };
 

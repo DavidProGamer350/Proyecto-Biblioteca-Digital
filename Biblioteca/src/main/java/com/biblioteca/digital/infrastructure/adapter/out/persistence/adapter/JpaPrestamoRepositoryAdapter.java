@@ -47,6 +47,7 @@ public class JpaPrestamoRepositoryAdapter implements PrestamoRepositoryPort {
     }
 
     private void mapToEntity(Prestamo prestamo, PrestamoEntity entity) {
+        entity.setId(prestamo.getId());
         entity.setUsuarioId(prestamo.getUsuarioId());
         entity.setLibroId(prestamo.getLibroId());
         entity.setFechaPrestamo(prestamo.getFechaPrestamo());
@@ -59,6 +60,7 @@ public class JpaPrestamoRepositoryAdapter implements PrestamoRepositoryPort {
         entity.setNotificacionEmail(prestamo.getNotificacionEmail());
         entity.setRequiereAprobacion(prestamo.getRequiereAprobacion());
         entity.setMotivoRechazo(prestamo.getMotivoRechazo());
+        entity.setVecesRenovado(prestamo.getVecesRenovado());
     }
 
     private Prestamo mapToDomain(PrestamoEntity entity) {
@@ -76,6 +78,7 @@ public class JpaPrestamoRepositoryAdapter implements PrestamoRepositoryPort {
             .notificacionEmail(entity.getNotificacionEmail())
             .requiereAprobacion(entity.getRequiereAprobacion())
             .motivoRechazo(entity.getMotivoRechazo())
+            .vecesRenovado(entity.getVecesRenovado())
             .build();
     }
 }

@@ -5,8 +5,15 @@ import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { BookListPage } from './pages/BookListPage';
+import { BookCreatePage } from './pages/BookCreatePage';
+import { BookEditPage } from './pages/BookEditPage';
+import { CatalogPage } from './pages/CatalogPage';
+import { LoanListPage } from './pages/LoanListPage';
+import { AdminLoansPage } from './pages/AdminLoansPage';
+import { ReportesPage } from './pages/ReportesPage';
+import { RecomendacionesPage } from './pages/RecomendacionesPage';
 import { PrivateRoute } from './components/PrivateRoute';
-import { ProximamentePage } from './components/ProximamentePage';
 
 const PrivateRouteWrapper = ({ children }) => {
   return <PrivateRoute>{children}</PrivateRoute>;
@@ -25,33 +32,54 @@ const LogoutHandler = () => {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/catalogo" element={<CatalogPage />} />
           <Route path="/dashboard" element={
             <PrivateRouteWrapper>
               <DashboardPage />
             </PrivateRouteWrapper>
           } />
+          <Route path="/libros" element={
+            <AdminRouteWrapper>
+              <BookListPage />
+            </AdminRouteWrapper>
+          } />
+          <Route path="/libros/nuevo" element={
+            <AdminRouteWrapper>
+              <BookCreatePage />
+            </AdminRouteWrapper>
+          } />
+          <Route path="/libros/editar/:id" element={
+            <AdminRouteWrapper>
+              <BookEditPage />
+            </AdminRouteWrapper>
+          } />
+          <Route path="/mis-prestamos" element={
+            <PrivateRouteWrapper>
+              <LoanListPage />
+            </PrivateRouteWrapper>
+          } />
           <Route path="/prestamos" element={
             <PrivateRouteWrapper>
-              <ProximamentePage titulo="Préstamos" />
+              <LoanListPage />
             </PrivateRouteWrapper>
           } />
-          <Route path="/libros" element={
-            <PrivateRouteWrapper>
-              <ProximamentePage titulo="Libros" />
-            </PrivateRouteWrapper>
+          <Route path="/admin/prestamos" element={
+            <AdminRouteWrapper>
+              <AdminLoansPage />
+            </AdminRouteWrapper>
           } />
-          <Route path="/catalogo" element={
-            <PrivateRouteWrapper>
-              <ProximamentePage titulo="Catálogo" />
-            </PrivateRouteWrapper>
+          <Route path="/reportes" element={
+            <AdminRouteWrapper>
+              <ReportesPage />
+            </AdminRouteWrapper>
           } />
           <Route path="/recomendaciones" element={
             <PrivateRouteWrapper>
-              <ProximamentePage titulo="Recomendaciones" />
+              <RecomendacionesPage />
             </PrivateRouteWrapper>
           } />
           <Route path="/profile" element={
@@ -65,8 +93,8 @@ function App() {
             </AdminRouteWrapper>
           } />
           <Route path="/logout" element={<LogoutHandler />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<Navigate to="/catalogo" replace />} />
+          <Route path="*" element={<Navigate to="/catalogo" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

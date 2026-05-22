@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { UserService } from '../services/UserService';
+import { Navbar } from '../components/Navbar';
 
 export const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -130,14 +131,7 @@ export const AdminUsersPage = () => {
 
   return (
     <div>
-      <nav className="navbar">
-        <Link to="/dashboard" className="navbar-brand">Biblioteca Digital</Link>
-        <div className="navbar-menu">
-          <Link to="/dashboard" className="navbar-link">Panel</Link>
-          <Link to="/books" className="navbar-link">Libros</Link>
-          <span className="navbar-user">{currentUser?.name} (Admin)</span>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="users-container">
         <div className="users-header">

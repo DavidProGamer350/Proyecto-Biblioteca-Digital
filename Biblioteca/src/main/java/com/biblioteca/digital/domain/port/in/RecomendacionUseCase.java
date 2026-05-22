@@ -12,6 +12,10 @@ public interface RecomendacionUseCase {
 
 	Recomendacion getRecomendacionByUsuarioAndLibro(Long usuarioId, Long libroId);
 
+	List<Recomendacion> getRecomendacionesByUsuarioId(Long usuarioId);
+
+	Recomendacion generarRecomendacion(String tipo, Long usuarioId, Long libroId);
+
 	Recomendacion updateRecomendacion(Long id, Recomendacion recomendacion);
 
 	void deleteRecomendacion(Long id);

@@ -9,6 +9,9 @@ public interface BookUseCase {
 	List<Book> findAllBooks();
 
 	Book findBookByIsbn(String isbn);
+
+	Book findBookById(Long id);
+
     Book updateBook(Long id, Book book);
     void deleteBook(Long id);
 }

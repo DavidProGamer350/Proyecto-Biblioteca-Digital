@@ -22,10 +22,12 @@ public class FileUploaderFactory implements UploadAbstractFactory {
 	}
 
 	public FileUploaderCreator getCreator(BookFormato formato) {
+		System.out.println("🏭 ABSTRACT FACTORY: getCreator(" + formato + ")");
 		FileUploaderCreator creator = creators.get(formato);
 		if (creator == null) {
 			throw new IllegalArgumentException("Formato no soportado: " + formato);
 		}
+		System.out.println("🏭 ABSTRACT FACTORY: → " + creator.getClass().getSimpleName());
 		return creator;
 	}
 }
