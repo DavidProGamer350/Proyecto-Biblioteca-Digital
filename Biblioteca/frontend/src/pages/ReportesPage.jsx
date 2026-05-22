@@ -3,6 +3,7 @@ import { LoanService } from '../services/LoanService';
 import { UserService } from '../services/UserService';
 import { BookService } from '../services/BookService';
 import { Navbar } from '../components/Navbar';
+import { gestorMultas, reporteMultasObserver } from '../services/MultasObserver';
 
 const PRECIO_PREMIUM = 15000;
 const NOMBRES_MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -13,6 +14,12 @@ export const ReportesPage = () => {
   const [booksMap, setBooksMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [topDesde, setTopDesde] = useState('');
+  const [topHasta, setTopHasta] = useState('');
+  const [actDesde, setActDesde] = useState('');
+  const [actHasta, setActHasta] = useState('');
+  const [multas, setMultas] = useState([]);
+  const [searchMultas, setSearchMultas] = useState('');
 
   useEffect(() => {
     loadAllData();
@@ -31,6 +38,13 @@ export const ReportesPage = () => {
       const bMap = {};
       booksData.forEach(b => { bMap[b.id] = b; });
       setBooksMap(bMap);
+
+      // Observer: calcular multas a partir de los datos cargados
+      reporteMultasObserver.limpiar();
+      gestorMultas.calcularMultas(loansData, usersData);
+      const usersMap = {};
+      usersData.forEach(u => { usersMap[u.id] = u; });
+      setMultas(reporteMultasObserver.obtenerMultas(usersMap));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -46,8 +60,17 @@ export const ReportesPage = () => {
   const ingresoPremium = premiumUsers.length * PRECIO_PREMIUM;
 
   // ─── Top libros ────────────────────────────────────────────
+  const loansTopFiltrados = topDesde || topHasta
+    ? loans.filter(l => {
+        if (!l.fechaPrestamo) return false;
+        if (topDesde && l.fechaPrestamo < topDesde) return false;
+        if (topHasta && l.fechaPrestamo > topHasta) return false;
+        return true;
+      })
+    : loans;
+
   const countByLibro = {};
-  loans.forEach(l => {
+  loansTopFiltrados.forEach(l => {
     countByLibro[l.libroId] = (countByLibro[l.libroId] || 0) + 1;
   });
   const topLibros = Object.entries(countByLibro)
@@ -84,8 +107,17 @@ export const ReportesPage = () => {
   const pctTarde = 100 - pctATiempo;
 
   // ─── Actividad mensual ─────────────────────────────────────
+  const loansActFiltrados = actDesde || actHasta
+    ? loans.filter(l => {
+        if (!l.fechaPrestamo) return false;
+        if (actDesde && l.fechaPrestamo < actDesde) return false;
+        if (actHasta && l.fechaPrestamo > actHasta) return false;
+        return true;
+      })
+    : loans;
+
   const meses = {};
-  loans.forEach(l => {
+  loansActFiltrados.forEach(l => {
     if (!l.fechaPrestamo) return;
     const [anio, mes] = l.fechaPrestamo.split('-');
     const key = `${anio}-${mes}`;
@@ -106,6 +138,10 @@ export const ReportesPage = () => {
     return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
   })();
   const prestamosEsteMes = meses[mesActualKey]?.total || 0;
+
+  const multasFiltradas = searchMultas
+    ? multas.filter(m => m.email.toLowerCase().includes(searchMultas.toLowerCase()))
+    : multas;
 
   if (loading) return <div><Navbar /><div className="loading" style={{ marginTop: '40px' }}>Cargando reportes...</div></div>;
 
@@ -167,8 +203,28 @@ export const ReportesPage = () => {
         {/* ── Sección 2: Top Libros más prestados ── */}
         <section className="reportes-section">
           <h2 className="reportes-section-title">Top Libros Más Prestados</h2>
+
+          <div className="filtro-fecha">
+            <label className="filtro-fecha-label">
+              Desde:
+              <input type="date" className="filtro-fecha-input" value={topDesde}
+                onChange={e => setTopDesde(e.target.value)} />
+            </label>
+            <label className="filtro-fecha-label">
+              Hasta:
+              <input type="date" className="filtro-fecha-input" value={topHasta}
+                onChange={e => setTopHasta(e.target.value)} />
+            </label>
+            {(topDesde || topHasta) && (
+              <button className="btn btn-secondary btn-sm" onClick={() => { setTopDesde(''); setTopHasta(''); }}>
+                Limpiar
+              </button>
+            )}
+            <span className="filtro-fecha-total">{loansTopFiltrados.length} préstamo(s)</span>
+          </div>
+
           {topLibros.length === 0 ? (
-            <p className="reportes-empty">No hay préstamos registrados.</p>
+            <p className="reportes-empty">No hay préstamos registrados en este período.</p>
           ) : (
             <table className="users-table">
               <thead>
@@ -231,8 +287,28 @@ export const ReportesPage = () => {
         {/* ── Sección 4: Actividad Mensual ── */}
         <section className="reportes-section">
           <h2 className="reportes-section-title">Actividad Mensual</h2>
+
+          <div className="filtro-fecha">
+            <label className="filtro-fecha-label">
+              Desde:
+              <input type="date" className="filtro-fecha-input" value={actDesde}
+                onChange={e => setActDesde(e.target.value)} />
+            </label>
+            <label className="filtro-fecha-label">
+              Hasta:
+              <input type="date" className="filtro-fecha-input" value={actHasta}
+                onChange={e => setActHasta(e.target.value)} />
+            </label>
+            {(actDesde || actHasta) && (
+              <button className="btn btn-secondary btn-sm" onClick={() => { setActDesde(''); setActHasta(''); }}>
+                Limpiar
+              </button>
+            )}
+            <span className="filtro-fecha-total">{loansActFiltrados.length} préstamo(s)</span>
+          </div>
+
           {mesesArray.length === 0 ? (
-            <p className="reportes-empty">No hay datos de actividad.</p>
+            <p className="reportes-empty">No hay datos de actividad en este período.</p>
           ) : (
             <div className="chart-container">
               <div className="chart-bars">
@@ -246,6 +322,42 @@ export const ReportesPage = () => {
                 ))}
               </div>
             </div>
+          )}
+        </section>
+
+        {/* ── Sección 5: Multas por Usuario (Observer) ── */}
+        <section className="reportes-section">
+          <h2 className="reportes-section-title">Multas por Usuario</h2>
+          <div className="filtro-fecha">
+            <input type="text" className="filtro-fecha-input" placeholder="Buscar por email..."
+              value={searchMultas} onChange={e => setSearchMultas(e.target.value)} />
+            <span className="filtro-fecha-total">{multasFiltradas.length} usuario(s) con multas</span>
+          </div>
+          {multasFiltradas.length === 0 ? (
+            <p className="reportes-empty">{searchMultas ? 'No hay usuarios con ese email.' : 'No hay multas registradas.'}</p>
+          ) : (
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Total Multas</th>
+                  <th>Préstamos Multados</th>
+                </tr>
+              </thead>
+              <tbody>
+                {multasFiltradas.map((m, i) => (
+                  <tr key={m.usuarioId}>
+                    <td>{i + 1}</td>
+                    <td>{m.nombre}</td>
+                    <td>{m.email}</td>
+                    <td><strong className="multa-monto">${m.totalMultas.toLocaleString()}</strong></td>
+                    <td>{m.cantidadPrestamosMultados}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </section>
       </div>

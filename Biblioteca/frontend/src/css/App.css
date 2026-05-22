@@ -1436,3 +1436,71 @@ select:focus {
   white-space: normal;
   word-break: break-word;
 }
+
+/* ============================================
+   FILTROS DE FECHA
+   ============================================ */
+
+.filtro-fecha {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.filtro-fecha-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.filtro-fecha-input {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+.filtro-fecha-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.filtro-fecha-total {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin-left: auto;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+}
+
+/* ============================================
+   MULTAS POR USUARIO
+   ============================================ */
+
+.reportes-section-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-left: var(--space-sm);
+  vertical-align: middle;
+}
+
+.multa-monto {
+  color: var(--color-error);
+}
