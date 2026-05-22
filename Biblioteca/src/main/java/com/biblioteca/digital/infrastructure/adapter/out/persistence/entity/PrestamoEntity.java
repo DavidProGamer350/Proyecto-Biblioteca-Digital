@@ -39,6 +39,9 @@ public class PrestamoEntity {
     @Column(name = "multas_acumuladas")
     private Integer multasAcumuladas;
 
+    @Column(name = "veces_renovado")
+    private Integer vecesRenovado;
+
     @Column(name = "notificacion_email", length = 200)
     private String notificacionEmail;
 
@@ -81,6 +84,9 @@ public class PrestamoEntity {
 
     public Integer getMultasAcumuladas() { return multasAcumuladas; }
     public void setMultasAcumuladas(Integer multasAcumuladas) { this.multasAcumuladas = multasAcumuladas; }
+
+    public Integer getVecesRenovado() { return vecesRenovado; }
+    public void setVecesRenovado(Integer vecesRenovado) { this.vecesRenovado = vecesRenovado; }
 
     public String getNotificacionEmail() { return notificacionEmail; }
     public void setNotificacionEmail(String notificacionEmail) { this.notificacionEmail = notificacionEmail; }

@@ -177,7 +177,7 @@ class PrestamoFacadeImplTest {
             .libroId(10L)
             .fechaDevolucionEsperada(LocalDate.now().plusDays(14))
             .estado("ACTIVO")
-            .vecesRenovado(2)
+            .vecesRenovado(3)
             .build();
 
         when(prestamoService.buscarPrestamo(1L)).thenReturn(prestamo);

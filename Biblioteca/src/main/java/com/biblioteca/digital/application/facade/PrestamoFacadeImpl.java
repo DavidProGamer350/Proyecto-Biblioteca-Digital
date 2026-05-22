@@ -112,8 +112,8 @@ public class PrestamoFacadeImpl implements PrestamoFacade {
         }
 
         int vecesRenovado = prestamo.getVecesRenovado() != null ? prestamo.getVecesRenovado() : 0;
-        if (vecesRenovado >= 2) {
-            throw new RuntimeException("Límite de renovaciones excedido (máximo 2)");
+        if (vecesRenovado >= 3) {
+            throw new RuntimeException("Límite máximo de renovaciones alcanzado (máximo 3)");
         }
 
         LocalDate nuevaFecha = prestamo.getFechaDevolucionEsperada().plusDays(dias);
@@ -124,8 +124,14 @@ public class PrestamoFacadeImpl implements PrestamoFacade {
                 .libroId(prestamo.getLibroId())
                 .fechaPrestamo(prestamo.getFechaPrestamo())
                 .fechaDevolucionEsperada(nuevaFecha)
+                .fechaDevolucionReal(prestamo.getFechaDevolucionReal())
                 .estado("ACTIVO")
                 .observaciones(prestamo.getObservaciones())
+                .codigoPrestamo(prestamo.getCodigoPrestamo())
+                .multasAcumuladas(prestamo.getMultasAcumuladas())
+                .notificacionEmail(prestamo.getNotificacionEmail())
+                .requiereAprobacion(prestamo.getRequiereAprobacion())
+                .motivoRechazo(prestamo.getMotivoRechazo())
                 .vecesRenovado(vecesRenovado + 1)
                 .build();
 

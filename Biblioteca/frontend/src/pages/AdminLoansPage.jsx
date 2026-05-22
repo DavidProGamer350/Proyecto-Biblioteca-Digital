@@ -87,6 +87,17 @@ export const AdminLoansPage = () => {
     }
   };
 
+  const handleRenew = async (id) => {
+    if (!confirm('¿Renovar este préstamo por 7 días adicionales?')) return;
+    try {
+      await LoanService.renew(id);
+      alert('Préstamo renovado exitosamente');
+      loadAllData();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const handleEditClick = (loan) => {
     setEditingLoan(loan);
     setEditForm({
@@ -122,26 +133,24 @@ export const AdminLoansPage = () => {
     }
   };
 
+  const getHoyStr = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
   const getStatusBadge = (loan) => {
     if (loan.estado === 'DEVUELTO') {
       return <span className="rol-badge user">DEVUELTO</span>;
     }
-
-    const today = new Date();
-    const expectedReturn = new Date(loan.fechaDevolucionEsperada);
-    
-    if (expectedReturn < today) {
+    if (loan.fechaDevolucionEsperada < getHoyStr()) {
       return <span className="rol-badge admin">VENCIDO</span>;
     }
-
     return <span className="rol-badge active">ACTIVO</span>;
   };
 
   const esVencido = (loan) => {
     if (loan.estado === 'DEVUELTO') return false;
-    const today = new Date();
-    const expected = new Date(loan.fechaDevolucionEsperada);
-    return expected < today;
+    return loan.fechaDevolucionEsperada < getHoyStr();
   };
 
   const activeLoans = loans.filter(l => !esVencido(l) && l.estado !== 'DEVUELTO').length;
@@ -206,6 +215,7 @@ export const AdminLoansPage = () => {
                 <th>ISBN</th>
                 <th>Fecha Préstamo</th>
                 <th>Devolución Esperada</th>
+                <th>Renov.</th>
                 <th>Estado</th>
                 <th>Multas</th>
                 <th>Acciones</th>
@@ -219,6 +229,7 @@ export const AdminLoansPage = () => {
                   <td>{getIsbn(loan.libroId)}</td>
                   <td>{loan.fechaPrestamo}</td>
                   <td>{loan.fechaDevolucionEsperada}</td>
+                  <td style={{ textAlign: 'center' }}>{loan.vecesRenovado || 0}</td>
                   <td>{getStatusBadge(loan)}</td>
                   <td>
                     {(() => {
@@ -239,12 +250,21 @@ export const AdminLoansPage = () => {
                       Editar
                     </button>
                     {loan.estado === 'ACTIVO' && (
-                      <button
-                        onClick={() => handleReturn(loan.id)}
-                        className="btn-action"
-                      >
-                        Devuelto
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleReturn(loan.id)}
+                          className="btn-action"
+                          style={{ marginRight: '5px' }}
+                        >
+                          Devuelto
+                        </button>
+                        <button
+                          onClick={() => handleRenew(loan.id)}
+                          className="btn-action btn-action--renew"
+                        >
+                          Renovar
+                        </button>
+                      </>
                     )}
                   </td>
                 </tr>
