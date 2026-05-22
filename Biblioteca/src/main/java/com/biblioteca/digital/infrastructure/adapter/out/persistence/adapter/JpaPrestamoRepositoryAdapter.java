@@ -60,6 +60,7 @@ public class JpaPrestamoRepositoryAdapter implements PrestamoRepositoryPort {
         entity.setNotificacionEmail(prestamo.getNotificacionEmail());
         entity.setRequiereAprobacion(prestamo.getRequiereAprobacion());
         entity.setMotivoRechazo(prestamo.getMotivoRechazo());
+        entity.setVecesRenovado(prestamo.getVecesRenovado());
     }
 
     private Prestamo mapToDomain(PrestamoEntity entity) {
@@ -77,6 +78,7 @@ public class JpaPrestamoRepositoryAdapter implements PrestamoRepositoryPort {
             .notificacionEmail(entity.getNotificacionEmail())
             .requiereAprobacion(entity.getRequiereAprobacion())
             .motivoRechazo(entity.getMotivoRechazo())
+            .vecesRenovado(entity.getVecesRenovado())
             .build();
     }
 }

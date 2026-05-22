@@ -16,15 +16,18 @@ Este documento describe la implementación de **4 patrones de comportamiento** d
 ### Ubicación en el proyecto
 
 ```
-src/main/java/com/biblioteca/digital/
-├── domain/
-│   ├── model/
-│   │   ├── reporte/
-│   │   │   ├── comportamiento/
-│   │   │   │   ├── observer/        ← Observer (Multas)
-│   │   │   │   ├── state/           ← State (Renovados)
-│   │   │   │   ├── strategy/        ← Strategy (Formato)
-│   │   │   │   └── command/         ← Command (Top Lectores)
+frontend/src/
+├── services/
+│   ├── MultasObserver.js             ← Observer (Multas)
+│   ├── MultasObserver.test.js
+│   ├── LibrosRenovadosState.js       ← State (Renovados)
+│   ├── LibrosRenovadosState.test.js
+│   ├── DistribucionFormatoStrategy.js ← Strategy (Formato)
+│   └── DistribucionFormatoStrategy.test.js
+├── pages/
+│   └── ReportesPage.jsx              ← Consume todos los patrones
+└── css/
+    └── App.css
 ```
 
 ---
@@ -44,92 +47,63 @@ Flujo actual (sin Observer):
                      (sin notificación automática)
 ```
 
-### Solución: Patrón Observer
+### Solución: Patrón Observer (Frontend-Only)
 
-El préstamo (o un gestor de multas) actúa como **Subject** que notifica a los **Observers** cuando ocurren eventos relevantes (vencimiento, devolución tardía). El reporte se actualiza automáticamente.
+El gestor de multas (`MultasSubject`) actúa como **Subject** que notifica a los **Observers** cuando ocurren eventos relevantes (vencimiento, devolución tardía). Todo el patrón se ejecuta en el frontend después de cargar los datos desde `GET /prestamos`.
 
-```
-Diagrama:
-┌───────────────────────────────────────────────┐
-│              MultasSubject (interface)         │
-├───────────────────────────────────────────────┤
-│ + agregarObserver(MultasObserver)             │
-│ + eliminarObserver(MultasObserver)            │
-│ + notificarObservers()                        │
-└──────────────────────┬────────────────────────┘
-                       │
-          ┌────────────┴────────────┐
-          ▼                         ▼
-┌─────────────────────┐   ┌─────────────────────────┐
-│ GestorMultas        │   │   MultasObserver        │
-│   (Subject concreto)│   │     (interface)         │
-├─────────────────────┤   ├─────────────────────────┤
-│ - observers: List   │   │ + actualizar(multa)     │
-│ + agregarObserver() │   └──────────┬──────────────┘
-│ + notificar()       │              │
-│ + registrarVencimto()│             │
-└─────────────────────┘              │
-                                     │
-                    ┌────────────────┼────────────────┐
-                    ▼                ▼                 ▼
-          ┌─────────────────┐ ┌──────────────┐ ┌──────────────────┐
-          │ ReporteMultas   │ │ Notificador  │ │ HistorialMultas  │
-          │ - actualiza     │ │ - envía      │ │ - registra       │
-          │   el reporte    │ │   alerta     │ │   en BD          │
-          └─────────────────┘ └──────────────┘ └──────────────────┘
-```
+### Estructura de clases (Frontend)
 
-### Estructura de clases
+Archivo: `frontend/src/services/MultasObserver.js`
 
-| Clase | Rol | Descripción |
-|-------|-----|-------------|
-| `MultasSubject` | Interfaz Subject | Define métodos para gestionar observers |
-| `GestorMultas` | Subject concreto | Detecta vencimientos y devoluciones, notifica a observers |
-| `MultasObserver` | Interfaz Observer | Contrato que deben implementar los observadores |
-| `ReporteMultasObserver` | Observer concreto | Actualiza el reporte de multas por usuario |
-| `NotificadorMultasObserver` | Observer concreto | Envía notificación al usuario moroso |
-| `HistorialMultasObserver` | Observer concreto | Persiste el evento de multa en el historial |
+| Clase/Instancia | Rol | Descripción |
+|-----------------|-----|-------------|
+| `MultasSubject` | Subject | Clase base: `agregarObserver()`, `eliminarObserver()`, `notificarObservers()`, `calcularMultas()` |
+| `gestorMultas` | Instancia Singleton de MultasSubject | Detecta vencimientos y devoluciones, notifica a observers |
+| `ReporteMultasObserver` | Observer concreto | Acumula multas por usuario y genera ranking |
+| `reporteMultasObserver` | Instancia Singleton de ReporteMultasObserver | Usado en ReportesPage.jsx para obtener datos |
+| `NotificadorObserver` | Observer concreto | Imprime en consola cada multa detectada |
+| `notificadorObserver` | Instancia Singleton de NotificadorObserver | Log de diagnóstico |
 
-### Flujo de datos
+### Flujo de datos (Frontend)
 
 ```
-1. Préstamo vence (fechaDevolucionEsperada < hoy y estado = ACTIVO)
+1. ReportesPage.loadAllData()
+   ├── LoanService.getAll()           → prestamos[]
+   ├── UserService.getAll()           → users[]
+   └── BookService.getAll()           → books[]
          │
          ▼
-2. GestorMultas.registrarVencimiento(prestamo)
+2. gestorMultas.calcularMultas(prestamos, users[])
+         │
+         ├── Itera préstamos vencidos → crea evento VENCIMIENTO
+         ├── Itera devoluciones tardías → crea evento DEVOLUCION_TARDIA
          │
          ▼
-3. GestorMultas.notificarObservers(multa)
+3. gestorMultas.notificarObservers(evento)
          │
-         ├──► ReporteMultasObserver.actualizar(multa)
-         │       └── recalcula totales por usuario
+         ├──► reporteMultasObserver.actualizar(evento)
+         │       └── acumula en mapa: usuarioId → { totalMultas, cantidadPrestamos, eventos[] }
          │
-         ├──► NotificadorMultasObserver.actualizar(multa)
-         │       └── envía alerta al usuario
+         └──► notificadorObserver.actualizar(evento)
+                 └── console.log("[Multas]", evento)
+
+4. setMultas(reporteMultasObserver.obtenerMultas(usersMap))
          │
-         └──► HistorialMultasObserver.actualizar(multa)
-                 └── guarda en BD
+         ▼
+5. Render: tabla con filtro por email
 ```
 
-### Criterios de notificación
+### Tests (19 pruebas)
 
-| Evento | Disparador | Datos notificados |
-|--------|-----------|-------------------|
-| Vencimiento | `fechaDevolucionEsperada < hoy` | prestamoId, usuarioId, diasVencido |
-| Devolución tardía | `fechaDevolucionReal > fechaDevolucionEsperada` | prestamoId, usuarioId, multaCalculada |
-| Multa pagada | Actualización de `multasAcumuladas` | usuarioId, nuevoTotal |
+Archivo: `frontend/src/services/MultasObserver.test.js`
 
-### Implementación en frontend
-
-El reporte se renderiza en `ReportesPage.jsx` consumiendo un endpoint que refleja los datos actualizados por los observers:
-
-```
-GET /reportes/multas/usuario
-→ [
-    { usuarioId: 1, nombre: "Juan", email: "juan@mail.com", totalMultas: 15000, prestamosMultados: 2 },
-    { usuarioId: 2, nombre: "Ana", email: "ana@mail.com", totalMultas: 5000, prestamosMultados: 1 }
-  ]
-```
+| # | Test | Categoría |
+|---|------|-----------|
+| 1-3 | Subject: agregar/eliminar/notificar | Subject |
+| 4-9 | Cálculo: detección de vencimientos | Cálculo |
+| 10-16 | Observers: agregación por usuario | Agregación |
+| 17 | Notificador: console.log | Notificador |
+| 18-19 | Integración: flujo completo | Integración |
 
 ---
 
@@ -147,45 +121,22 @@ else { /* badge rojo, muy destacado */ }
 // ❌ Lógica dispersa, difícil de extender
 ```
 
-### Solución: Patrón State
+### Solución: Patrón State (Frontend-Only)
 
-Cada nivel de renovación se modela como un **Estado** que encapsula el comportamiento asociado. El libro delega en su estado actual para determinar cómo aparece en el reporte.
+Cada nivel de renovación se modela como un **Estado** que encapsula el comportamiento asociado. El `ContextoRenovacion` delega en su estado actual para determinar cómo aparece el libro en el reporte.
 
-```
-Diagrama:
-┌───────────────────────────────────┐
-│    RenovacionState (interface)    │
-├───────────────────────────────────┤
-│ + getNombreEstado(): String      │
-│ + getBadgeClass(): String        │
-│ + getColorReporte(): String      │
-│ + getRecomendacion(): String     │
-│ + getOrdenPrioridad(): int       │
-└──────────────┬────────────────────┘
-               │
-     ┌─────────┼─────────┐
-     ▼         ▼         ▼
-┌──────────┐ ┌────────┐ ┌──────────┐
-│ Sin     │ │ Poca   │ │ Mucha    │
-│ Renovacion│ │ Renovac│ │ Renovac  │
-├──────────┤ ├────────┤ ├──────────┤
-│ veces: 0 │ │ veces: │ │ veces:   │
-│ badge:   │ │ 1-2    │ │ 3+       │
-│ gris     │ │ badge: │ │ badge:   │
-│          │ │ azul   │ │ rojo     │
-│ orden: 3 │ │ orden: │ │ orden: 1 │
-└──────────┘ │ 2      │ └──────────┘
-              └────────┘
-```
+### Estructura de clases (Frontend)
 
-### Estructura de clases
+Archivo: `frontend/src/services/LibrosRenovadosState.js`
 
-| Clase | Rol | Descripción |
-|-------|-----|-------------|
-| `RenovacionState` | Interfaz State | Define el comportamiento según nivel de renovación |
+| Clase/Función | Rol | Descripción |
+|---------------|-----|-------------|
 | `SinRenovacion` | State concreto | 0 renovaciones — badge gris, orden 3 |
-| `PocaRenovacion` | State concreto | 1-2 renovaciones — badge azul, orden 2 |
-| `MuchaRenovacion` | State concreto | 3+ renovaciones — badge rojo, orden 1 |
+| `PocaRenovacion` | State concreto | 1-2 renovaciones — badge azul, orden 2, recomendación |
+| `MuchaRenovacion` | State concreto | 3+ renovaciones — badge rojo, orden 1, recomendación |
+| `StateFactory` | Factory | Crea el estado correcto según el número de renovaciones |
+| `ContextoRenovacion` | Contexto | Mantiene el estado y delega `getNombreEstado()`, `getBadgeClass()`, `getOrdenPrioridad()`, `getRecomendacion()` |
+| `agruparPorLibro()` | Utilidad | Agrupa préstamos por libro, calcula renovaciones totales, asigna estado y ordena por prioridad |
 
 ### Transiciones de estado
 
@@ -207,22 +158,38 @@ Diagrama:
 
 ### Integración con el reporte
 
-El reporte `ReporteLibrosRenovados` itera sobre los préstamos, agrupa por libro y determina el `RenovacionState` de cada uno según su `vecesRenovado`. Luego:
+El reporte en `ReportesPage.jsx` (sección "Libros Más Renovados"): itera sobre los préstamos, agrupa por libro y determina el `ContextoRenovacion` de cada uno según su `vecesRenovado`. Luego:
 
 1. Ordena los libros por `getOrdenPrioridad()` (MuchaRenovacion primero)
 2. Asigna badge CSS según `getBadgeClass()`
 3. Muestra recomendación según `getRecomendacion()`
 
 ```
-GET /reportes/libros/renovados
-→ {
-    estados: [
-      { nombre: "Mucha Renovación", libros: [ ... ], color: "rojo" },
-      { nombre: "Poca Renovación", libros: [ ... ], color: "azul" },
-      { nombre: "Sin Renovación", libros: [ ... ], color: "gris" }
+Datos fuente: GET /prestamos → cada préstamo tiene "vecesRenovado"
+
+Agrupación frontend:
+  renovaciones = agruparPorLibro(loans, books)
+  → [
+      { libroId, totalRenovaciones, cantidadPrestamos,
+        titulo, autor, formato,
+        estado: "Mucha renovación",
+        badgeClass: "state-badge--alta",
+        ordenPrioridad: 1,
+        recomendacion: "Evaluar ampliar periodo de préstamo estándar" },
+      ...
     ]
-  }
 ```
+
+### Tests (12 pruebas)
+
+Archivo: `frontend/src/services/LibrosRenovadosState.test.js`
+
+| # | Test | Categoría |
+|---|------|-----------|
+| 1-5 | Factory: creación de estados (0,1,2,3,5) | StateFactory |
+| 6-8 | Estados: propiedades específicas (badge, orden, recomendación) | Comportamiento |
+| 9-11 | Contexto: delegación correcta | Contexto |
+| 12-17 | agruparPorLibro: suma, orden, desempate, defaults, vacío | Integración |
 
 ### Ejemplo de comportamiento por estado
 
@@ -248,96 +215,64 @@ else if (calculo === "comparativo") { /* cálculo C */ }
 // ❌ Violación de Open/Closed: hay que modificar la clase al añadir variantes
 ```
 
-### Solución: Patrón Strategy
+### Solución: Patrón Strategy (Frontend-Only)
 
-Cada algoritmo de distribución se encapsula en una **Estrategia** intercambiable. El reporte delega el cálculo en la estrategia activa, que puede cambiarse en tiempo de ejecución.
+Cada algoritmo de distribución se encapsula en una **Estrategia** intercambiable. El reporte delega el cálculo en la estrategia activa, que el usuario puede cambiar mediante pestañas en la UI.
+
+### Estructura de clases (Frontend)
+
+Archivo: `frontend/src/services/DistribucionFormatoStrategy.js`
+
+| Clase/Función | Rol | Descripción |
+|---------------|-----|-------------|
+| `EstrategiaPorcentual` | Strategy concreta | Calcula % de cada formato sobre el total |
+| `EstrategiaAbsoluta` | Strategy concreta | Cuenta el número bruto de préstamos por formato |
+| `ContextoDistribucion` | Contexto | Mantiene la estrategia activa, delega `ejecutar()` |
+| `crearStrategy(tipo)` | Factory | Crea estrategia según tipo: "porcentual", "absoluta" |
+| `calcularDistribucion()` | Utilidad | Función conveniente que crea estrategia, contexto y ejecuta |
+
+### Flujo de datos (Frontend)
 
 ```
-Diagrama:
-┌──────────────────────────────────────┐
-│   DistribucionStrategy (interface)   │
-├──────────────────────────────────────┤
-│ + getNombre(): String               │
-│ + calcular(prestamos, libros):      │
-│     List<FormatoData>               │
-└──────────────┬───────────────────────┘
+1. ReportesPage carga prestamos[] y books[]
+         │
+         ▼
+2. Usuario hace clic en pestaña: "Porcentual" | "Absoluta"
+         │
+         ▼
+3. setTipoDistribucion(tipo) → renderiza con calcularDistribucion()
+   └── calcularDistribucion(loansFiltrados, books, tipo)
+         │
+         ├── crearStrategy(tipo) → new EstrategiaPorcentual()
+         ├── new ContextoDistribucion(strategy)
+         └── ctx.ejecutar(loansFiltrados, books)
                │
-     ┌─────────┼─────────┐
-     ▼         ▼         ▼
-┌────────────┐ ┌────────┐ ┌──────────────┐
-│ Porcentual │ │Absoluto│ │ Comparativo  │
-├────────────┤ ├────────┤ ├──────────────┤
-│ Calcula    │ │ Cuenta │ │ Muestra      │
-│ % de cada  │ │ raw    │ │ evolución    │
-│ formato    │ │ por    │ │ respecto al  │
-│ sobre total│ │ formato │ │ mes anterior │
-└────────────┘ └────────┘ └──────────────┘
-
-         Contexto:
-    ┌─────────────────────────┐
-    │ ReporteDistribucion     │
-    ├─────────────────────────┤
-    │ - strategy: Strategy    │
-    │ + setStrategy(s)        │
-    │ + generar(): Reporte    │
-    └─────────────────────────┘
+               ▼
+4. agruparPorFormato(prestamos, libros):
+   └── Cruza préstamo → libroId → formato
+   └── Cuenta por formato, ordena: PDF, EPUB, MOBI, FISICO
+         │
+         ▼
+5. Según estrategia:
+   Porcentual  → { formato, cantidad, porcentaje }
+   Absoluta    → { formato, cantidad }
+         │
+         ▼
+6. Render: tabla + barras de distribución + filtro de fecha
 ```
 
-### Estructura de clases
+### Tests (11 pruebas)
 
-| Clase | Rol | Descripción |
-|-------|-----|-------------|
-| `DistribucionStrategy` | Interfaz Strategy | Define el contrato para calcular distribución |
-| `DistribucionPorcentual` | Strategy concreta | Calcula porcentaje de cada formato sobre el total |
-| `DistribucionAbsoluta` | Strategy concreta | Cuenta el número bruto de préstamos por formato |
-| `DistribucionComparativa` | Strategy concreta | Compara distribución actual vs. período anterior |
-| `ReporteDistribucionFormato` | Contexto | Mantiene referencia a la Strategy y delega el cálculo |
+Archivo: `frontend/src/services/DistribucionFormatoStrategy.test.js`
 
-### Flujo de datos
-
-```
-Frontend solicita: GET /reportes/distribucion?tipo=porcentual
-
-1. ReporteController recibe parámetro "tipo"
-         │
-         ▼
-2. ReporteService selecciona estrategia:
-   - "porcentual"  → new DistribucionPorcentual()
-   - "absoluto"    → new DistribucionAbsoluta()
-   - "comparativo" → new DistribucionComparativa()
-         │
-         ▼
-3. ReporteDistribucionFormato.setStrategy(strategy)
-         │
-         ▼
-4. reporte.generar(prestamos, libros)
-         │
-         ▼
-5. strategy.calcular(prestamos, libros)
-         │
-         ▼
-6. → Resultado: { formato: "PDF", valor: 45, unidad: "%" }
-                { formato: "EPUB", valor: 35, unidad: "%" }
-                { formato: "MOBI", valor: 20, unidad: "%" }
-```
-
-### Ejemplo de resultados por estrategia
-
-| Estrategia | Formato | Valor | Unidad |
-|------------|---------|-------|--------|
-| **Porcentual** | PDF | 45 | % |
-| | EPUB | 35 | % |
-| | MOBI | 20 | % |
-| **Absoluta** | PDF | 90 | préstamos |
-| | EPUB | 70 | préstamos |
-| | MOBI | 40 | préstamos |
-| **Comparativa** | PDF | +5% | vs mes anterior |
-| | EPUB | -2% | vs mes anterior |
-| | MOBI | +1% | vs mes anterior |
-
-### Beneficio clave
-
-Añadir una nueva estrategia (ej: `DistribucionPorRangoFecha`) solo requiere crear una nueva clase que implemente `DistribucionStrategy` — **no se modifica código existente** (Principio Open/Closed).
+| # | Test | Categoría |
+|---|------|-----------|
+| 1-2 | agruparPorFormato: agrupa correctamente, libro sin catálogo | Agrupación |
+| 3-5 | Porcentual: % correctos, 100% un formato, vacío | Estrategia |
+| 6 | Absoluta: conteo exacto | Estrategia |
+| 7-8 | Contexto: ejecuta estrategia, cambiar estrategia cambia resultado | Contexto |
+| 9-10 | Factory: crear por tipo, tipo inválido lanza error | Factory |
+| 11 | Integración: flujo completo orden descendente | Integración |
 
 ---
 
@@ -471,12 +406,12 @@ Receiver:
 
 ### Mapa completo de nuevos reportes
 
-| Reporte | Patrón | Endpoint propuesto | Cálculo |
-|---------|--------|-------------------|---------|
-| Multas por Usuario | **Observer** | `GET /reportes/multas/usuario` | Suma `multasAcumuladas` por usuario |
-| Libros Más Renovados | **State** | `GET /reportes/libros/renovados` | Agrupa por `vecesRenovado` |
-| Distribución por Formato | **Strategy** | `GET /reportes/distribucion?tipo=porcentual` | Cuenta préstamos por `BookFormato` |
-| Top Lectores | **Command** | `GET /reportes/lectores/top?limite=10` | Cuenta préstamos por `usuarioId` |
+| Reporte | Patrón | Fuente de datos | Cálculo |
+|---------|--------|----------------|---------|
+| Multas por Usuario | **Observer** | `GET /prestamos` (frontend) | Suma días vencidos × $1/día por usuario |
+| Libros Más Renovados | **State** | `GET /prestamos` (frontend) | Agrupa por `vecesRenovado` por libro |
+| Distribución por Formato | **Strategy** | `GET /prestamos` + `GET /books` (frontend) | Cuenta préstamos por `BookFormato` |
+| Top Lectores | **Command** | `GET /prestamos` + `GET /users` (frontend) | Cuenta préstamos por `usuarioId` |
 
 ### Relación con patrones existentes
 

@@ -87,7 +87,8 @@ export const LoanService = {
     });
 
     if (!response.ok) {
-      throw new Error('Error al renovar préstamo');
+      const body = await response.json().catch(() => ({}));
+      throw new Error(body.error || 'Error al renovar préstamo');
     }
     return response.json();
   }

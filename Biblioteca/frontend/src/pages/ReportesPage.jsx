@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { LoanService } from '../services/LoanService';
 import { UserService } from '../services/UserService';
 import { BookService } from '../services/BookService';
 import { Navbar } from '../components/Navbar';
 import { gestorMultas, reporteMultasObserver } from '../services/MultasObserver';
+import { agruparPorLibro } from '../services/LibrosRenovadosState';
+import { calcularDistribucion } from '../services/DistribucionFormatoStrategy';
+import { GenerarTopLectoresCommand, ComandoHistorial } from '../services/TopLectoresCommand';
 
 const PRECIO_PREMIUM = 15000;
 const NOMBRES_MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -20,6 +23,13 @@ export const ReportesPage = () => {
   const [actHasta, setActHasta] = useState('');
   const [multas, setMultas] = useState([]);
   const [searchMultas, setSearchMultas] = useState('');
+  const [searchRenovaciones, setSearchRenovaciones] = useState('');
+  const [tipoDistribucion, setTipoDistribucion] = useState('porcentual');
+  const [distDesde, setDistDesde] = useState('');
+  const [distHasta, setDistHasta] = useState('');
+  const [topLDesde, setTopLDesde] = useState('');
+  const [topLHasta, setTopLHasta] = useState('');
+  const historialRef = useRef(new ComandoHistorial());
 
   useEffect(() => {
     loadAllData();
@@ -142,6 +152,41 @@ export const ReportesPage = () => {
   const multasFiltradas = searchMultas
     ? multas.filter(m => m.email.toLowerCase().includes(searchMultas.toLowerCase()))
     : multas;
+
+  // ─── Libros Más Renovados (State) ──────────────────────────
+  const renovacionesData = agruparPorLibro(loans, booksMap);
+  const renovacionesFiltradas = searchRenovaciones
+    ? renovacionesData.filter(r => r.isbn.toLowerCase().includes(searchRenovaciones.toLowerCase()))
+    : renovacionesData;
+
+  // ─── Distribución por Formato (Strategy) ───────────────────
+  const loansDistFiltrados = distDesde || distHasta
+    ? loans.filter(l => {
+        if (!l.fechaPrestamo) return false;
+        if (distDesde && l.fechaPrestamo < distDesde) return false;
+        if (distHasta && l.fechaPrestamo > distHasta) return false;
+        return true;
+      })
+    : loans;
+
+  const distribucion = calcularDistribucion(loansDistFiltrados, Object.values(booksMap), tipoDistribucion);
+
+  // ─── Top Lectores (Command) ────────────────────────────────
+  const loansTopLFiltrados = topLDesde || topLHasta
+    ? loans.filter(l => {
+        if (!l.fechaPrestamo) return false;
+        if (topLDesde && l.fechaPrestamo < topLDesde) return false;
+        if (topLHasta && l.fechaPrestamo > topLHasta) return false;
+        return true;
+      })
+    : loans;
+
+  const topLUsersMap = {};
+  users.forEach(u => { topLUsersMap[u.id] = u; });
+  const topLectoresResult = (() => {
+    const cmd = new GenerarTopLectoresCommand(loansTopLFiltrados, topLUsersMap, topLDesde, topLHasta);
+    return cmd.ejecutar();
+  })();
 
   if (loading) return <div><Navbar /><div className="loading" style={{ marginTop: '40px' }}>Cargando reportes...</div></div>;
 
@@ -354,6 +399,180 @@ export const ReportesPage = () => {
                     <td>{m.email}</td>
                     <td><strong className="multa-monto">${m.totalMultas.toLocaleString()}</strong></td>
                     <td>{m.cantidadPrestamosMultados}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+
+        {/* ── Sección 6: Libros Más Renovados (State) ── */}
+        <section className="reportes-section">
+          <h2 className="reportes-section-title">Libros Más Renovados</h2>
+          <div className="filtro-fecha">
+            <input type="text" className="filtro-fecha-input" placeholder="Buscar por ISBN..."
+              value={searchRenovaciones} onChange={e => setSearchRenovaciones(e.target.value)} />
+            <span className="filtro-fecha-total">{renovacionesFiltradas.length} libro(s)</span>
+          </div>
+          {renovacionesFiltradas.length === 0 ? (
+            <p className="reportes-empty">{searchRenovaciones ? 'No hay libros con ese ISBN.' : 'No hay datos de renovaciones disponibles.'}</p>
+          ) : (
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Título</th>
+                  <th>Autor</th>
+                  <th>ISBN</th>
+                  <th>Formato</th>
+                  <th>Veces renovado</th>
+                  <th>Estado</th>
+                  <th>Recomendación</th>
+                </tr>
+              </thead>
+              <tbody>
+                {renovacionesFiltradas.map((r, i) => (
+                  <tr key={r.libroId}>
+                    <td>{i + 1}</td>
+                    <td>{r.titulo}</td>
+                    <td>{r.autor}</td>
+                    <td>{r.isbn}</td>
+                    <td>{r.formato}</td>
+                    <td><strong>{r.totalRenovaciones}</strong></td>
+                    <td><span className={`state-badge ${r.badgeClass}`}>{r.estado}</span></td>
+                    <td className="recomendacion-cell">{r.recomendacion || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+
+        {/* ── Sección 7: Distribución por Formato (Strategy) ── */}
+        <section className="reportes-section">
+          <h2 className="reportes-section-title">Distribución por Formato</h2>
+
+          <div className="filtro-fecha">
+            <label className="filtro-fecha-label">
+              Desde:
+              <input type="date" className="filtro-fecha-input" value={distDesde}
+                onChange={e => setDistDesde(e.target.value)} />
+            </label>
+            <label className="filtro-fecha-label">
+              Hasta:
+              <input type="date" className="filtro-fecha-input" value={distHasta}
+                onChange={e => setDistHasta(e.target.value)} />
+            </label>
+            {(distDesde || distHasta) && (
+              <button className="btn btn-secondary btn-sm" onClick={() => { setDistDesde(''); setDistHasta(''); }}>
+                Limpiar
+              </button>
+            )}
+            <span className="filtro-fecha-total">{loansDistFiltrados.length} préstamo(s)</span>
+          </div>
+
+          <div className="strategy-tabs">
+            {['porcentual', 'absoluta'].map(tipo => (
+              <button
+                key={tipo}
+                className={`strategy-tab ${tipoDistribucion === tipo ? 'strategy-tab--active' : ''}`}
+                onClick={() => setTipoDistribucion(tipo)}
+              >
+                {tipo === 'porcentual' ? 'Porcentual' : 'Absoluta'}
+              </button>
+            ))}
+          </div>
+
+          {distribucion.length === 0 ? (
+            <p className="reportes-empty">No hay datos de distribución en este período.</p>
+          ) : (
+            <>
+              <table className="users-table">
+                <thead>
+                  <tr>
+                    <th>Formato</th>
+                    <th>Cantidad</th>
+                    {tipoDistribucion === 'porcentual' && <th>Porcentaje</th>}
+                    <th>Distribución</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(() => {
+                    const maxCant = Math.max(...distribucion.map(d => d.cantidad), 1);
+                    return distribucion.map((d, i) => (
+                      <tr key={d.formato}>
+                        <td><strong>{d.formato}</strong></td>
+                        <td>{d.cantidad}</td>
+                        {tipoDistribucion === 'porcentual' && <td>{d.porcentaje}%</td>}
+                        <td>
+                          <div className="distribucion-bar-track">
+                            <div
+                              className={`distribucion-bar-fill distribucion-bar-fill--${i}`}
+                              style={{ width: `${(d.cantidad / maxCant) * 100}%` }}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ));
+                  })()}
+                </tbody>
+              </table>
+              <p className="reportes-nota">
+                Vista: <strong>{tipoDistribucion === 'porcentual' ? 'Porcentual' : 'Absoluta'}</strong>
+              </p>
+            </>
+          )}
+        </section>
+
+        {/* ── Sección 8: Top Lectores (Command) ── */}
+        <section className="reportes-section">
+          <h2 className="reportes-section-title">Top Lectores</h2>
+
+          <div className="filtro-fecha">
+            <label className="filtro-fecha-label">
+              Desde:
+              <input type="date" className="filtro-fecha-input" value={topLDesde}
+                onChange={e => setTopLDesde(e.target.value)} />
+            </label>
+            <label className="filtro-fecha-label">
+              Hasta:
+              <input type="date" className="filtro-fecha-input" value={topLHasta}
+                onChange={e => setTopLHasta(e.target.value)} />
+            </label>
+            {(topLDesde || topLHasta) && (
+              <button className="btn btn-secondary btn-sm" onClick={() => { setTopLDesde(''); setTopLHasta(''); }}>
+                Limpiar
+              </button>
+            )}
+            <span className="filtro-fecha-total">{loansTopLFiltrados.length} préstamo(s)</span>
+          </div>
+
+          {topLectoresResult.length === 0 ? (
+            <p className="reportes-empty">No hay datos de lectores en este período.</p>
+          ) : (
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Total Préstamos</th>
+                  <th>Tipo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topLectoresResult.map((r, i) => (
+                  <tr key={r.usuarioId}>
+                    <td>
+                      {i === 0 ? <span className="top-medal top-medal--gold">🥇</span>
+                        : i === 1 ? <span className="top-medal top-medal--silver">🥈</span>
+                        : i === 2 ? <span className="top-medal top-medal--bronze">🥉</span>
+                        : i + 1}
+                    </td>
+                    <td>{r.nombre}</td>
+                    <td>{r.email}</td>
+                    <td><strong>{r.totalPrestamos}</strong></td>
+                    <td>{r.esPremium ? <span className="rol-badge admin">Premium</span> : <span className="rol-badge user">Gratuito</span>}</td>
                   </tr>
                 ))}
               </tbody>

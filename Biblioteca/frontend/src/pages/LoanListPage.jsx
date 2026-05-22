@@ -69,18 +69,29 @@ export const LoanListPage = () => {
     }
   };
 
+  const handleRenew = async (id) => {
+    if (!confirm('¿Renovar este préstamo por 7 días adicionales?')) return;
+    try {
+      await LoanService.renew(id);
+      alert('Préstamo renovado exitosamente');
+      loadMyLoans();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const getHoyStr = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
   const getStatusBadge = (loan) => {
-    const today = new Date();
-    const expectedReturn = new Date(loan.fechaDevolucionEsperada);
-    
     if (loan.estado === 'DEVUELTO') {
       return <span className="rol-badge user">DEVUELTO</span>;
     }
-    
-    if (expectedReturn < today) {
+    if (loan.fechaDevolucionEsperada < getHoyStr()) {
       return <span className="rol-badge admin">VENCIDO</span>;
     }
-    
     return <span className="rol-badge active">ACTIVO</span>;
   };
 
@@ -121,6 +132,7 @@ export const LoanListPage = () => {
                 <th>ISBN</th>
                 <th>Fecha Préstamo</th>
                 <th>Devolución Esperada</th>
+                <th>Renov.</th>
                 <th>Estado</th>
                 <th>Multa</th>
                 <th>Acciones</th>
@@ -133,6 +145,7 @@ export const LoanListPage = () => {
                   <td>{getIsbn(loan.libroId)}</td>
                   <td>{loan.fechaPrestamo}</td>
                   <td>{loan.fechaDevolucionEsperada}</td>
+                  <td style={{ textAlign: 'center' }}>{loan.vecesRenovado || 0}</td>
                   <td>{getStatusBadge(loan)}</td>
                   <td>
                     {(() => {
@@ -146,12 +159,21 @@ export const LoanListPage = () => {
                   </td>
                   <td className="actions">
                     {loan.estado === 'ACTIVO' ? (
-                      <button
-                        onClick={() => handleReturn(loan.id)}
-                        className="btn-action"
-                      >
-                        Devolver
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleReturn(loan.id)}
+                          className="btn-action"
+                          style={{ marginRight: '5px' }}
+                        >
+                          Devolver
+                        </button>
+                        <button
+                          onClick={() => handleRenew(loan.id)}
+                          className="btn-action btn-action--renew"
+                        >
+                          Renovar
+                        </button>
+                      </>
                     ) : (
                       <span className="btn-action" style={{ opacity: 0.5, cursor: 'default' }}>Devuelto</span>
                     )}

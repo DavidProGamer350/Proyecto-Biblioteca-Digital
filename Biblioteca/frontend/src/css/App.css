@@ -46,6 +46,7 @@
   --radius-md: 6px;
   --radius-lg: 10px;
   --radius-xl: 16px;
+  --radius-full: 999px;
   
   /* Transitions */
   --transition-fast: 0.15s ease;
@@ -659,6 +660,18 @@ a:hover {
   background: var(--color-primary);
   color: white;
   border-color: var(--color-primary);
+}
+
+.btn-action--renew {
+  background: rgba(45, 106, 79, 0.08);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.btn-action--renew:hover {
+  background: var(--color-secondary);
+  color: white;
+  border-color: var(--color-secondary);
 }
 
 .btn-delete {
@@ -1504,3 +1517,101 @@ select:focus {
 .multa-monto {
   color: var(--color-error);
 }
+
+/* ============================================
+   STATE — LIBROS MÁS RENOVADOS
+   ============================================ */
+
+.state-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.state-badge--baja {
+  background: #e2e6e3;
+  color: #4a5a4a;
+}
+
+.state-badge--media {
+  background: #d0e1f5;
+  color: #1a4a7a;
+}
+
+.state-badge--alta {
+  background: #f5d0d0;
+  color: #9b2335;
+}
+
+.recomendacion-cell {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  max-width: 220px;
+}
+
+/* ============================================
+   STRATEGY — DISTRIBUCIÓN POR FORMATO
+   ============================================ */
+
+.strategy-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.strategy-tab {
+  padding: 7px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.strategy-tab:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.strategy-tab--active {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: white;
+}
+
+.strategy-tab--active:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  color: white;
+}
+
+.distribucion-bar-track {
+  width: 180px;
+  height: 18px;
+  background: var(--color-bg);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.distribucion-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--transition-base);
+}
+
+.distribucion-bar-fill--0 { background: #2D6A4F; }
+.distribucion-bar-fill--1 { background: #B8860B; }
+.distribucion-bar-fill--2 { background: #4A7A9B; }
+.distribucion-bar-fill--3 { background: #9B2335; }
+.distribucion-bar-fill--4 { background: #6B5B8A; }
+.distribucion-bar-fill--5 { background: #5A8A6A; }
+
+.var-positiva { color: var(--color-success); font-weight: 600; }
+.var-negativa { color: var(--color-error); font-weight: 600; }

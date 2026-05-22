@@ -1,6 +1,7 @@
 package com.biblioteca.digital.infrastructure.adapter.in.web;
 
 import com.biblioteca.digital.domain.model.Prestamo;
+import com.biblioteca.digital.domain.port.in.PrestamoFacade;
 import com.biblioteca.digital.domain.port.in.PrestamoUseCase;
 import com.biblioteca.digital.infrastructure.config.JwtUtils;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +16,12 @@ public class PrestamoController {
 
     private final PrestamoUseCase prestamoUseCase;
     private final JwtUtils jwtUtils;
+    private final PrestamoFacade prestamoFacade;
 
-    public PrestamoController(PrestamoUseCase prestamoUseCase, JwtUtils jwtUtils) {
+    public PrestamoController(PrestamoUseCase prestamoUseCase, JwtUtils jwtUtils, PrestamoFacade prestamoFacade) {
         this.prestamoUseCase = prestamoUseCase;
         this.jwtUtils = jwtUtils;
+        this.prestamoFacade = prestamoFacade;
     }
 
     @PostMapping
@@ -103,6 +106,16 @@ public class PrestamoController {
         return prestamo != null ?
                 ResponseEntity.ok(prestamo) :
                 ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/{id}/renovar")
+    public ResponseEntity<?> renovarPrestamo(@PathVariable Long id, @RequestParam(defaultValue = "7") int dias) {
+        try {
+            Prestamo prestamo = prestamoFacade.renovarPrestamo(id, dias);
+            return ResponseEntity.ok(prestamo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @DeleteMapping("/{id}")
