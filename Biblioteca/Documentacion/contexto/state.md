@@ -80,28 +80,28 @@ package "Frontend — State (LibrosRenovadosState.js)" {
     + getRecomendacion(): String
   }
 
-  interface RenovacionState {
+  class RenovacionState {
     + getNombreEstado(): String
     + getBadgeClass(): String
     + getOrdenPrioridad(): Number
     + getRecomendacion(): String
   }
 
-  class SinRenovacion implements RenovacionState {
+  class SinRenovacion {
     + getNombreEstado(): "Sin renovación"
     + getBadgeClass(): "state-badge--baja"
     + getOrdenPrioridad(): 3
     + getRecomendacion(): ""
   }
 
-  class PocaRenovacion implements RenovacionState {
+  class PocaRenovacion {
     + getNombreEstado(): "Poca renovación"
     + getBadgeClass(): "state-badge--media"
     + getOrdenPrioridad(): 2
     + getRecomendacion(): "Considerar extender plazo"
   }
 
-  class MuchaRenovacion implements RenovacionState {
+  class MuchaRenovacion {
     + getNombreEstado(): "Mucha renovación"
     + getBadgeClass(): "state-badge--alta"
     + getOrdenPrioridad(): 1
@@ -121,6 +121,9 @@ package "Contexto (ReportesPage.jsx)" {
 }
 
 ContextoRenovacion o-> RenovacionState : state
+RenovacionState <|.. SinRenovacion : duck typing
+RenovacionState <|.. PocaRenovacion : duck typing
+RenovacionState <|.. MuchaRenovacion : duck typing
 StateFactory ..> SinRenovacion : crea
 StateFactory ..> PocaRenovacion : crea
 StateFactory ..> MuchaRenovacion : crea
@@ -134,7 +137,7 @@ ReportesPage ..> StateFactory : usa
 
 | Clase / Función | Archivo | Rol |
 |-----------------|---------|-----|
-| `RenovacionState` | `LibrosRenovadosState.js` | Define el contrato: `getNombreEstado()`, `getBadgeClass()`, `getOrdenPrioridad()`, `getRecomendacion()` |
+| `RenovacionState` | conceptual (duck typing) | Define el contrato: `getNombreEstado()`, `getBadgeClass()`, `getOrdenPrioridad()`, `getRecomendacion()` |
 | `SinRenovacion` | `LibrosRenovadosState.js` | Estado concreto: 0 renovaciones, badge gris, orden 3 |
 | `PocaRenovacion` | `LibrosRenovadosState.js` | Estado concreto: 1-2 renovaciones, badge azul, orden 2, sugiere extender plazo |
 | `MuchaRenovacion` | `LibrosRenovadosState.js` | Estado concreto: 3+ renovaciones, badge rojo, orden 1, sugiere ampliar período |
@@ -265,6 +268,6 @@ Framework: **Vitest**
 |-----------|----------------|
 | **SRP** | Cada estado tiene una única responsabilidad: definir su comportamiento |
 | **OCP** | Nuevos estados se agregan sin modificar estados existentes |
-| **LSP** | Todos los estados implementan `RenovacionState` y son intercambiables |
+| **LSP** | Todos los estados implementan `RenovacionState` (duck typing) y son intercambiables |
 | **ISP** | La interfaz `RenovacionState` tiene métodos cohesivos y específicos |
-| **DIP** | `ContextoRenovacion` depende de la abstracción `RenovacionState`, no de concretas |
+| **DIP** | `ContextoRenovacion` depende de la abstracción `RenovacionState` (duck typing), no de concretas |

@@ -302,7 +302,7 @@ Cada operación sobre el reporte es un objeto **Command** que encapsula la solic
 ```
 Diagrama:
 ┌──────────────────────────────────────────────────┐
-│             ReporteCommand (interface)           │
+│             ReporteCommand (interface / duck typing) │
 ├──────────────────────────────────────────────────┤
 │ + ejecutar(): Resultado                         │
 │ + deshacer(): void                              │
@@ -440,7 +440,7 @@ Prototype (recomendaciones)   ◄────►      Command (solicitud como ob
 | **OCP** — Open/Closed | Nuevas estrategias o estados se añaden sin modificar código existente |
 | **LSP** — Liskov | Todas las estrategias/estados son intercambiables vía interfaz común |
 | **ISP** — Segregación | Interfaces pequeñas y específicas para cada patrón |
-| **DIP** — Inversión | Dependencias apuntan a interfaces (`DistribucionStrategy`), no a concretas |
+| **DIP** — Inversión | Dependencias apuntan a abstracciones (`DistribucionStrategy` por duck typing), no a concretas |
 
 ---
 
