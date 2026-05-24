@@ -69,19 +69,19 @@ Concepto:
 ```
 @startuml
 package "Frontend — Strategy (DistribucionFormatoStrategy.js)" {
-  interface DistribucionStrategy {
+  class DistribucionStrategy {
     + getNombre(): String
     + calcular(prestamos, libros): FormatoData[]
   }
 
-  class EstrategiaPorcentual implements DistribucionStrategy {
+  class EstrategiaPorcentual {
     + getNombre(): "Porcentual"
-    + calcular(): FormatoData[] con %
+    + calcular(): Array con %
   }
 
-  class EstrategiaAbsoluta implements DistribucionStrategy {
-    getNombre(): "Absoluta"
-    calcular(): FormatoData[] con cantidades
+  class EstrategiaAbsoluta {
+    + getNombre(): "Absoluta"
+    + calcular(): Array con cantidades
   }
 
   class ContextoDistribucion {
@@ -89,17 +89,16 @@ package "Frontend — Strategy (DistribucionFormatoStrategy.js)" {
     + ContextoDistribucion(strategy)
     + setStrategy(strategy)
     + getNombre(): String
-    + ejecutar(prestamos, libros): FormatoData[]
+    + ejecutar(prestamos, libros): Array
   }
 
   class FormatoData {
     + formato: String
     + cantidad: Number
     + porcentaje: Number
-    + variacion: Number
   }
 
-  class StrategyFactory {
+  class crearStrategy {
     + crearStrategy(tipo): DistribucionStrategy
   }
 }
@@ -112,11 +111,13 @@ package "Contexto (ReportesPage.jsx)" {
 }
 
 ContextoDistribucion o-> DistribucionStrategy : strategy
+DistribucionStrategy <|.. EstrategiaPorcentual : duck typing
+DistribucionStrategy <|.. EstrategiaAbsoluta : duck typing
 ReportesPage ..> ContextoDistribucion : usa
-ReportesPage ..> StrategyFactory : usa
-StrategyFactory ..> EstrategiaPorcentual : crea
-StrategyFactory ..> EstrategiaAbsoluta : crea
-distribucionFormatoStrategy ..> FormatoData : contiene
+ReportesPage ..> crearStrategy : usa
+crearStrategy ..> EstrategiaPorcentual : crea
+crearStrategy ..> EstrategiaAbsoluta : crea
+agruparPorFormato ..> FormatoData : contiene
 
 @enduml
 ```
@@ -125,11 +126,11 @@ distribucionFormatoStrategy ..> FormatoData : contiene
 
 | Clase / Función | Archivo | Rol |
 |-----------------|---------|-----|
-| `DistribucionStrategy` | `DistribucionFormatoStrategy.js` | Define el contrato: `getNombre()`, `calcular(prestamos, libros)` |
+| `DistribucionStrategy` | conceptual (duck typing) | Define el contrato: `getNombre()`, `calcular(prestamos, libros)` |
 | `EstrategiaPorcentual` | `DistribucionFormatoStrategy.js` | Calcula % de cada formato sobre el total |
 | `EstrategiaAbsoluta` | `DistribucionFormatoStrategy.js` | Cuenta número bruto de préstamos por formato |
 | `ContextoDistribucion` | `DistribucionFormatoStrategy.js` | Mantiene la estrategia activa y delega el cálculo |
-| `crearStrategy(tipo)` | `DistribucionFormatoStrategy.js` | Factory: crea estrategia según tipo |
+| `crearStrategy(tipo)` | `DistribucionFormatoStrategy.js` | Factory: función que crea estrategia según tipo |
 
 ---
 
@@ -241,7 +242,7 @@ Framework: **Vitest**
 | Principio | Cómo se cumple |
 |-----------|----------------|
 | **SRP** | Cada estrategia tiene una única responsabilidad: calcular distribución de una forma |
-| **OCP** | Nueva estrategia se agrega creando una clase que implemente `DistribucionStrategy` — no se modifica código existente |
-| **LSP** | Todas las estrategias implementan `DistribucionStrategy` y son intercambiables |
-| **ISP** | La interfaz tiene métodos cohesivos y específicos |
-| **DIP** | `ContextoDistribucion` depende de la abstracción `DistribucionStrategy`, no de concretas |
+| **OCP** | Nueva estrategia se agrega creando una clase con métodos `getNombre()` y `calcular()` — no se modifica código existente |
+| **LSP** | Todas las estrategias cumplen el mismo contrato (duck typing) y son intercambiables |
+| **ISP** | Cada estrategia implementa solo los métodos que necesita |
+| **DIP** | `ContextoDistribucion` depende de la abstracción `DistribucionStrategy` (duck typing), no de concretas |
