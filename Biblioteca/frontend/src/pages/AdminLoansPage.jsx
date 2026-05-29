@@ -5,8 +5,7 @@ import { BookService } from '../services/BookService';
 import { AuthContext } from '../context/AuthContext';
 import { useContext } from 'react';
 import { Navbar } from '../components/Navbar';
-
-const TARIFA_POR_DIA = 1;
+import { ejecutarCadena } from '../services/CadenaPrestamosHandler';
 
 export const AdminLoansPage = () => {
   const [loans, setLoans] = useState([]);
@@ -57,17 +56,11 @@ export const AdminLoansPage = () => {
   const getEmail = (usuarioId) => usersMap[usuarioId] || `ID: ${usuarioId}`;
   const getIsbn = (libroId) => booksMap[libroId] || `ID: ${libroId}`;
 
-  const calcularMulta = (loan) => {
-    const base = loan.multasAcumuladas || 0;
-    if (loan.estado === 'DEVUELTO') {
-      return base;
-    }
-    const hoy = new Date();
-    const esperada = new Date(loan.fechaDevolucionEsperada);
-    if (esperada >= hoy) return base;
-    const dias = Math.floor((hoy - esperada) / (1000 * 60 * 60 * 24)) + 1;
-    return base + (dias * TARIFA_POR_DIA);
-  };
+  const { activeLoans, vencidos, devueltos, multasTotales } = (() => {
+    if (loans.length === 0) return { activeLoans: 0, vencidos: 0, devueltos: 0, multasTotales: 0 };
+    const r = ejecutarCadena(loans);
+    return { activeLoans: r.activos, vencidos: r.vencidos, devueltos: r.devuelto, multasTotales: r.multasTotales };
+  })();
 
   const filteredLoans = loans.filter(loan => {
     if (!searchText) return true;
@@ -153,11 +146,6 @@ export const AdminLoansPage = () => {
     return loan.fechaDevolucionEsperada < getHoyStr();
   };
 
-  const activeLoans = loans.filter(l => !esVencido(l) && l.estado !== 'DEVUELTO').length;
-  const overdueLoans = loans.filter(l => esVencido(l)).length;
-  const returnedLoans = loans.filter(l => l.estado === 'DEVUELTO').length;
-  const totalFines = loans.reduce((sum, l) => sum + calcularMulta(l), 0);
-
   return (
     <div>
       <Navbar />
@@ -174,15 +162,15 @@ export const AdminLoansPage = () => {
           </div>
           <div className="dashboard-card">
             <h3>Vencidos</h3>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-error)' }}>{overdueLoans}</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-error)' }}>{vencidos}</p>
           </div>
           <div className="dashboard-card">
             <h3>Devueltos</h3>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{returnedLoans}</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{devueltos}</p>
           </div>
           <div className="dashboard-card">
             <h3>Multas Totales</h3>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-accent)' }}>${totalFines}</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-accent)' }}>${multasTotales}</p>
           </div>
         </div>
 
@@ -233,7 +221,16 @@ export const AdminLoansPage = () => {
                   <td>{getStatusBadge(loan)}</td>
                   <td>
                     {(() => {
-                      const multa = calcularMulta(loan);
+                      const base = loan.multasAcumuladas || 0;
+                      let multa = base;
+                      if (loan.estado !== 'DEVUELTO') {
+                        const hoy = new Date();
+                        const esperada = new Date(loan.fechaDevolucionEsperada);
+                        if (esperada < hoy) {
+                          const dias = Math.floor((hoy - esperada) / (1000 * 60 * 60 * 24)) + 1;
+                          multa = base + dias;
+                        }
+                      }
                       return multa > 0 ? (
                         <span style={{ color: 'red', fontWeight: 'bold' }}>${multa}</span>
                       ) : (
