@@ -7,8 +7,9 @@ import { gestorMultas, reporteMultasObserver } from '../services/MultasObserver'
 import { agruparPorLibro } from '../services/LibrosRenovadosState';
 import { calcularDistribucion } from '../services/DistribucionFormatoStrategy';
 import { GenerarTopLectoresCommand, ComandoHistorial } from '../services/TopLectoresCommand';
+import { LibrosNuncaPrestados } from '../services/LibrosOlvidadosTemplate';
+import { PremiumOriginator, PremiumCaretaker } from '../services/PremiumMemento';
 
-const PRECIO_PREMIUM = 15000;
 const NOMBRES_MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
 export const ReportesPage = () => {
@@ -30,6 +31,8 @@ export const ReportesPage = () => {
   const [topLDesde, setTopLDesde] = useState('');
   const [topLHasta, setTopLHasta] = useState('');
   const historialRef = useRef(new ComandoHistorial());
+  const premiumOriginatorRef = useRef(new PremiumOriginator());
+  const premiumCaretakerRef = useRef(new PremiumCaretaker());
 
   useEffect(() => {
     loadAllData();
@@ -62,12 +65,14 @@ export const ReportesPage = () => {
     }
   };
 
-  // ─── Premium ───────────────────────────────────────────────
+  // ─── Premium (Memento) ────────────────────────────────────────
   const premiumUsers = users.filter(u => u.suscripcionActiva);
   const freeUsers = users.filter(u => !u.suscripcionActiva);
+  premiumOriginatorRef.current.calcular(users);
+  premiumCaretakerRef.current.guardar(premiumOriginatorRef.current.guardarMemento());
   const totalUsers = users.length;
-  const pctPremium = totalUsers > 0 ? Math.round((premiumUsers.length / totalUsers) * 100) : 0;
-  const ingresoPremium = premiumUsers.length * PRECIO_PREMIUM;
+  const pctPremium = premiumOriginatorRef.current.getPctPremium();
+  const ingresoPremium = premiumOriginatorRef.current.getIngresoPremium();
 
   // ─── Top libros ────────────────────────────────────────────
   const loansTopFiltrados = topDesde || topHasta
@@ -187,6 +192,11 @@ export const ReportesPage = () => {
     const cmd = new GenerarTopLectoresCommand(loansTopLFiltrados, topLUsersMap, topLDesde, topLHasta);
     return cmd.ejecutar();
   })();
+
+  // ─── Libros Olvidados (Template Method) ────────────────────
+  const librosArray = Object.values(booksMap);
+  const templateLibros = new LibrosNuncaPrestados(librosArray, loans);
+  const librosOlvidados = templateLibros.generar();
 
   if (loading) return <div><Navbar /><div className="loading" style={{ marginTop: '40px' }}>Cargando reportes...</div></div>;
 
@@ -577,6 +587,42 @@ export const ReportesPage = () => {
                 ))}
               </tbody>
             </table>
+          )}
+        </section>
+
+        {/* ── Sección 9: Libros Olvidados (Template Method) ── */}
+        <section className="reportes-section">
+          <h2 className="reportes-section-title">Libros Olvidados</h2>
+          <p className="reportes-section-desc">Libros del catálogo que nunca han sido prestados.</p>
+
+          {librosOlvidados.length === 0 ? (
+            <p className="reportes-empty">Todos los libros tienen al menos un préstamo registrado.</p>
+          ) : (
+            <>
+              <p className="reportes-nota">{librosOlvidados.length} libro(s) sin préstamos de {librosArray.length} en catálogo.</p>
+              <table className="users-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>ISBN</th>
+                    <th>Formato</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {librosOlvidados.map(l => (
+                    <tr key={l.id}>
+                      <td>{l.indice}</td>
+                      <td>{l.titulo || 'S/T'}</td>
+                      <td>{l.autor || 'S/A'}</td>
+                      <td>{l.isbn || '—'}</td>
+                      <td>{l.formato || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
           )}
         </section>
       </div>

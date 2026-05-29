@@ -62,19 +62,19 @@ Concepto:
 ```
 @startuml
 package "Frontend — Command (TopLectoresCommand.js)" {
-  interface ReporteCommand {
+  class ReporteCommand {
     + getNombre(): String
-    + ejecutar(): TopLectoresResult[]
+    + ejecutar(): Array
     + getTimestamp(): String
   }
 
-  class GenerarTopLectoresCommand implements ReporteCommand {
-    - prestamos: Prestamo[]
-    - usersMap: Map
+  class GenerarTopLectoresCommand {
+    - prestamos: Array
+    - usersMap: Object
     - desde: String
     - hasta: String
     + getNombre(): "Top Lectores"
-    + ejecutar(): TopLectoresResult[]
+    + ejecutar(): Array
     + getTimestamp(): String
   }
 
@@ -87,9 +87,9 @@ package "Frontend — Command (TopLectoresCommand.js)" {
   }
 
   class ComandoHistorial {
-    - historial: ReporteCommand[]
-    + ejecutar(cmd): Result[]
-    + getHistorial(): ReporteCommand[]
+    - historial: Array
+    + ejecutar(cmd): Array
+    + getHistorial(): Array
     + limpiar(): void
   }
 }
@@ -102,6 +102,7 @@ package "Contexto (ReportesPage.jsx)" {
 }
 
 ComandoHistorial o-> ReporteCommand : historial
+ReporteCommand <|.. GenerarTopLectoresCommand : duck typing
 GenerarTopLectoresCommand ..> TopLectoresResult : genera
 ReportesPage ..> ComandoHistorial : usa
 ReportesPage ..> GenerarTopLectoresCommand : crea
@@ -113,9 +114,9 @@ ReportesPage ..> GenerarTopLectoresCommand : crea
 
 | Clase | Archivo | Rol |
 |-------|---------|-----|
-| `ReporteCommand` | `TopLectoresCommand.js` | Interfaz: `getNombre()`, `ejecutar()`, `getTimestamp()` |
+| `ReporteCommand` | conceptual (duck typing) | Contrato: `getNombre()`, `ejecutar()`, `getTimestamp()` |
 | `GenerarTopLectoresCommand` | `TopLectoresCommand.js` | Command concreto: filtra préstamos por fecha, agrupa por usuario, ordena por cantidad descendente |
-| `TopLectoresResult` | `TopLectoresCommand.js` | DTO: usuarioId, nombre, email, totalPrestamos, esPremium |
+| `TopLectoresResult` | conceptual (objeto de retorno) | DTO: usuarioId, nombre, email, totalPrestamos, esPremium |
 | `ComandoHistorial` | `TopLectoresCommand.js` | Invoker: ejecuta comandos, mantiene historial, permite listar ejecuciones |
 
 ---
@@ -236,6 +237,6 @@ Framework: **Vitest**
 |-----------|----------------|
 | **SRP** | Cada comando tiene una única responsabilidad: generar el ranking |
 | **OCP** | Nuevos comandos se agregan sin modificar el invoker ni otros comandos |
-| **LSP** | Todos los comandos implementan `ReporteCommand` y son intercambiables |
-| **ISP** | La interfaz tiene métodos cohesivos |
-| **DIP** | `ComandoHistorial` depende de la abstracción `ReporteCommand` |
+| **LSP** | Todos los comandos cumplen el mismo contrato (duck typing) y son intercambiables |
+| **ISP** | Cada comando solo expone los métodos que necesita |
+| **DIP** | `ComandoHistorial` depende de la abstracción `ReporteCommand` (duck typing) |

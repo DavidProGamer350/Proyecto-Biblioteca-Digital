@@ -68,34 +68,24 @@ Concepto:
 package "Frontend — Observer (MultasObserver.js)" {
   class MultasSubject {
     + constructor()
-    + agregarObserver(MultasObserver observer)
-    + eliminarObserver(MultasObserver observer)
+    + agregarObserver(observer)
+    + eliminarObserver(observer)
     + notificarObservers(evento)
-    + calcularMultas(loans, users): MultaEvento[]
+    + calcularMultas(loans, users)
   }
 
-  interface MultasObserver {
+  class MultasObserver {
     + actualizar(evento)
   }
 
-  class MultaEvento {
-    - prestamoId: Number
-    - usuarioId: Number
-    - libroId: Number
-    - diasVencido: Number
-    - multaCalculada: Number
-    - tipoEvento: String
-    - fechaEvento: String
-  }
-
-  class ReporteMultasObserver implements MultasObserver {
+  class ReporteMultasObserver {
     - multasPorUsuario: Object
     + actualizar(evento)
     + obtenerMultas(usersMap): Array
     + limpiar()
   }
 
-  class NotificadorObserver implements MultasObserver {
+  class NotificadorObserver {
     + actualizar(evento)
   }
 }
@@ -108,9 +98,8 @@ package "Contexto (ReportesPage.jsx)" {
 }
 
 MultasSubject o- MultasObserver : observers
-MultasObserver <|.. ReporteMultasObserver
-MultasObserver <|.. NotificadorObserver
-MultasSubject ..> MultaEvento : crea
+MultasObserver <|.. ReporteMultasObserver : duck typing
+MultasObserver <|.. NotificadorObserver : duck typing
 ReportesPage ..> MultasSubject : usa gestorMultas
 ReportesPage ..> ReporteMultasObserver : usa reporteMultasObserver
 
@@ -122,9 +111,8 @@ ReportesPage ..> ReporteMultasObserver : usa reporteMultasObserver
 | Clase / Instancia | Archivo | Rol |
 |-------------------|---------|-----|
 | `MultasSubject` | `MultasObserver.js` | Define los métodos para gestionar observers y notificar eventos de multa |
-| `MultasObserver` (conceptual) | — | Contrato que deben cumplir los objetos que quieran recibir notificaciones |
+| `MultasObserver` (conceptual) | — | Contrato (duck typing) que deben cumplir los objetos que quieran recibir notificaciones |
 | `gestorMultas` (instancia de `MultasSubject`) | `MultasObserver.js:112` | Subject singleton que itera préstamos, detecta vencimientos y notifica a todos los observers |
-| `MultaEvento` | — (objeto plano) | Objeto con `prestamoId`, `usuarioId`, `diasVencido`, `multaCalculada`, `tipoEvento`, `fechaEvento` |
 | `reporteMultasObserver` (instancia de `ReporteMultasObserver`) | `MultasObserver.js:113` | Observer que acumula multas por usuario en un mapa interno y genera el ranking final |
 | `notificadorObserver` (instancia de `NotificadorObserver`) | `MultasObserver.js:114` | Observer que registra en consola cada multa detectada (simula notificación) |
 | `ReportesPage.jsx` | `pages/ReportesPage.jsx` | Contexto React que instancia los datos, ejecuta `gestorMultas.calcularMultas()` y renderiza la tabla |
@@ -313,6 +301,6 @@ npm run test:watch
 |-----------|----------------|
 | **SRP** | `MultasSubject` solo gestiona observers y detecta vencimientos; cada observer tiene una única responsabilidad |
 | **OCP** | Nuevos observers se agregan sin modificar `MultasSubject` — basta crear una clase que implemente `actualizar()` |
-| **LSP** | Todos los observers (`ReporteMultasObserver`, `NotificadorObserver`) comparten la misma interfaz y son intercambiables |
+| **LSP** | Todos los observers (`ReporteMultasObserver`, `NotificadorObserver`) comparten la misma interfaz (duck typing) y son intercambiables |
 | **ISP** | Cada observer implementa únicamente el método `actualizar(evento)` |
 | **DIP** | `MultasSubject` depende de la abstracción `MultasObserver`, no de implementaciones concretas |

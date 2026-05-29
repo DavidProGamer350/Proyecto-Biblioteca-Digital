@@ -1138,6 +1138,13 @@ select:focus {
   border-bottom: 2px solid var(--color-bg);
 }
 
+.reportes-section-desc {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-top: calc(-1 * var(--space-md));
+  margin-bottom: var(--space-lg);
+}
+
 .reportes-empty {
   color: var(--color-text-muted);
   text-align: center;
